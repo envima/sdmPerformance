@@ -86,6 +86,7 @@ performanceStabilityIndex <- function(
   }
   
   pred <- terra::mean(x)
+  pred=climateStability::rescale0to1(pred)
   stability <- stabilityRasters(x)
   
   if (isTRUE(background)) {
@@ -140,6 +141,7 @@ stabilityRasters <- function(r) {
 
 indexCalculation <- function(inputDF, stability) {
   COR <- if (length(unique(inputDF$predicted)) > 1) cor(inputDF$observed, inputDF$predicted) else NA
+  if (COR < 0) COR<-0
   AUC <- Metrics::auc(inputDF$observed, inputDF$predicted)
   PRG <- prg::calc_auprg(prg::create_prg_curve(inputDF$observed, inputDF$predicted))
   MAE <- Metrics::mae(inputDF$observed, inputDF$predicted)
@@ -147,7 +149,25 @@ indexCalculation <- function(inputDF, stability) {
   values <- c(COR, 0, 0, 0, stability, 0, 0, 0, PRG)
   metric <- Lithics3D:::getTArea(values)
   metric <- metric / 0.8660254
+  X <- indexX(inputDF)
   
-  metric=data.frame(metric=metric, AUC=AUC, COR=COR,stability=stability, PRG=PRG, MAE=MAE, BIAS=BIAS)
+  metric=data.frame(metric=metric, AUC=AUC, COR=COR,stability=stability, PRG=PRG, MAE=MAE, BIAS=BIAS, X=X)
+  return(metric)
+}
+
+
+indexX <- function(inputDF){
+  absence=inputDF[inputDF$observed==0,]$predicted
+  presence=inputDF[inputDF$observed==1,]$predicted
+  v=c()
+  for (a in absence){
+    for(p in presence){
+      values <- c(1-a, 0, 0, 0, p, 0, 0, 0, 0)#<-letzter wert war cor
+      metric=Lithics3D:::getTArea(values)
+      print(paste0("metric: ",metric,". Absence: ", a, " . Presence: ", p))
+      v=append(v,metric)
+    }
+  }
+  metric=(mean(v)/0.5)
   return(metric)
 }

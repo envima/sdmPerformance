@@ -14,7 +14,7 @@ setwd("M:/user/bald/SDM/sdmPerformance/")
 
 df=expand.grid(vs=gsub(".tif","",list.files("data/paRaster/", pattern=".tif", full.names=F)) ,
                points=c(40,120,200,400),
-               replicates=1,
+               replicates=1:10,
                cv="random",
                testData=1:6,
                method=NA,
@@ -26,7 +26,7 @@ df=expand.grid(vs=gsub(".tif","",list.files("data/paRaster/", pattern=".tif", fu
 
 #df=df%>%dplyr::filter(df$vs == "VS01")
 
-if(!dir.exists("data/index2/")) dir.create("data/index2")
+if(!dir.exists("data/index2/")) dir.create("data/index_1000")
 
 #mclapply(1:nrow(df), function(s){
 lapply(1:nrow(df), function(s){
@@ -90,7 +90,7 @@ lapply(1:nrow(df), function(s){
 #}, mc.cores=45)
 
 
-l=list.files("data/results_1000/", full.names=T)
+l=list.files("data/index2/", full.names=T)
 l=do.call(rbind, lapply(l, function(x){
   data=readRDS(x)
   return(data)}))
@@ -146,80 +146,90 @@ l[l < 0] <- 0
 #mae_outliers <- mean(abs(residuals[outliers]))
 
 
-indexCalculation2 <- function(COR,stability,AUC,MAE,PRG) {
+indexCalculation2 <- function(COR,stability,AUC,MAE,PRG,BIAS) {
   
-
- metric=mean(c(COR,AUC,stability))
- 
+  if(AUC < 0.5) AUC<-0.5
+  aucRescale=data.frame(AUCnew=c(rep(0,21),seq(0,1,0.05)),
+                        AUC=c(seq(0,0.5,0.025),seq(0.5,1,0.025)))
   
+  # Interpolate to get rescaled values
+  AUC=approx(x = aucRescale$AUC, y = aucRescale$AUCnew, xout = AUC)$y
+  
+  
+  metric=mean(c(COR,stability,AUC,1-MAE,1-BIAS))
   return(metric)
 }
 
-indexCalculation <- function(COR,stability,AUC,MAE) {
- 
+
+indexCalculation <- function(COR,stability,AUC,MAE,PRG) {
+  
   #if (stability < 0){stability <- 0}
-  values <- c(COR, 0, 0, 0, stability, 0, 0, 0, AUC)
+  values <- c(AUC, 0, 0, 0, stability, 0, 0, 0, COR)
   metric=Lithics3D:::getTArea(values)
   metric= metric / 0.8660254
- # if(metric > 1) metric <- 1
+  # if(metric > 1) metric <- 1
   return(metric)
 }
 
-l$index3<-NA
+l$index2<-NA
 lapply(1:nrow(l), function(x){
-  index<-indexCalculation2(COR=l$COR[x],stability = l$stability[x],AUC=l$PRG[x],MAE=l$MAE[x], PRG=l$PRG[x])
-  l$index3[x]<<-index
+  index<-indexCalculation2(COR=l$COR[x],stability = l$stability[x],AUC=l$PRG[x],MAE=l$MAE[x], PRG=l$PRG[x], BIAS=l$BIAS[x])
+  l$index2[x]<<-index
 })
 
-l$index<-NA
-lapply(1:nrow(l), function(x){
-  index<-indexCalculation(COR=l$COR[x],stability = l$stability[x],AUC=l$PRG[x],MAE=l$MAE[x])
-  l$index[x]<<-index
-})
 
-p1<-ggplot(l, aes(x=index, y=trueCOR,color=points)) + 
+
+#l$index<-NA
+#lapply(1:nrow(l), function(x){
+#  index<-indexCalculation(COR=l$COR[x],stability = l$stability[x],AUC=l$PRG[x],MAE=l$MAE[x])
+#  l$index[x]<<-index
+#})
+
+l=l%>%dplyr::filter(method=="PAA")
+p1<-ggplot(l, aes(x=AUC, y=trueCOR,color=points)) + 
   geom_point() +ylim(0,1)+xlim(0,1)+facet_wrap(vars(method))+
   geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
   theme_ipsum()
 
-p2<-ggplot(l, aes(x=index3, y=trueCOR,color=points)) + 
+p2<-ggplot(l, aes(x=COR, y=trueCOR,color=points)) + 
   geom_point() +ylim(0,1)+xlim(0,1)+facet_wrap(vars(method))+
   geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
   theme_ipsum()
 
-p3=ggplot(l, aes(x=COR, y=trueCOR,color=points))+
+p3=ggplot(l, aes(x=index, y=trueCOR,color=points))+
   geom_point()+ylim(0,1)+xlim(0,1)+facet_wrap(vars(method))+
   geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
   theme_ipsum()
 
 
-p4=ggplot(l, aes(x=AUC, y=trueCOR,color=points)) + 
+p4=ggplot(l, aes(x=index2, y=trueCOR,color=points)) + 
   geom_point() +ylim(0,1)+xlim(0,1)+ facet_wrap(vars(method))+
   geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
   theme_ipsum()
 
-p5<-ggplot(l, aes(x=1-MAE, y=trueCOR,color=points)) + 
+
+
+
+p6<-ggplot(l, aes(x=stability, y=trueCOR,color=points)) + 
   geom_point() +ylim(0,1)+xlim(0,1)+ facet_wrap(vars(method))+
   geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
   theme_ipsum()
 
-gridExtra::grid.arrange(p2,p3,p4,nrow=3,ncol=1)
+gridExtra::grid.arrange(p1,p2,p3,p4,p6,nrow=2,ncol=3);rm(p1,p2,p3,p4,p6)
 
-#x=l%>%dplyr::filter(method=="PAA")
-
-summ <- l %>% 
+l %>% 
   group_by(method) %>% 
   summarise(Rsq_index = R2(index, trueCOR),
             RMSE_index = RMSE(index,trueCOR),
-            Rsq_index3 = R2(index3, trueCOR),
-            RMSE_index3 = RMSE(index3,trueCOR),
+            Rsq_index2 = R2(index2, trueCOR),
+            RMSE_index2 = RMSE(index2,trueCOR),
             Rsq_COR = R2(COR, trueCOR),
             RMSE_COR = RMSE(COR,trueCOR),
             Rsq_AUC = R2(AUC, trueCOR),
             RMSE_AUC = RMSE(AUC,trueCOR)
   ) %>% 
   mutate_if(is.numeric, round, digits=2) 
-summ
 
-#plot(log(seq(0,1,0.1)),seq(0,1,0.1) )
 
+
+########## fehlerbehebung

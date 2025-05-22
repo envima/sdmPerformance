@@ -1,4 +1,4 @@
-source("R/functions/performanceStabilityIndex.R")
+source("R/functions/performanceStabilityIndex2.R")
 library(tidyverse)
 library(parallel)
 setwd("M:/user/bald/SDM/sdmPerformance/")
