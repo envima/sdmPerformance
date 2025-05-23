@@ -9,7 +9,7 @@ Also available [here](https://www.canva.com/design/DAGoQsREV4I/LJuZQiilc2LV3LAUt
 
 ### Full Workflow
 Also available [here](https://www.canva.com/design/DAGoQAAKF8E/IAn1Zi1qZIhZnv67fm0TrA/edit?utm_content=DAGoQAAKF8E&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton) for better readability / zooming functionalities.
-![](images/Workflow sdmPerformance.png)
+![](images/Workflow_sdmPerformance.png)
 
 
 ### Preliminary results
