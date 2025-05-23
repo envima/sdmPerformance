@@ -157,8 +157,8 @@ terra::writeRaster(VS10$suitab.raster,  paste0("data/virtualSpecies/", "VS10.tif
 
 
 
-# 3 - Sampling of PA data #####
-#-----------------------------#
+# 3 - Conversion to PA data #####
+#-------------------------------#
 
 if(!dir.exists("data/paRaster/")) dir.create("data/paRaster")
 

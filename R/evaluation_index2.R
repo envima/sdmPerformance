@@ -10,7 +10,7 @@ library(ggplot2)
 library(caret)
 library(ggpmisc)
 
-setwd("M:/user/bald/SDM/sdmPerformance/")
+if (Sys.info()[[4]]=="PC19674") setwd("M:/user/bald/SDM/sdmPerformance/")
 
 df=expand.grid(vs=gsub(".tif","",list.files("data/paRaster/", pattern=".tif", full.names=F)) ,
                points=c(40,120,200,400),
@@ -26,12 +26,12 @@ df=expand.grid(vs=gsub(".tif","",list.files("data/paRaster/", pattern=".tif", fu
 
 #df=df%>%dplyr::filter(df$vs == "VS01")
 
-if(!dir.exists("data/index2/")) dir.create("data/index_1000")
+if(!dir.exists("data/results3")) dir.create("data/results3")
 
-#mclapply(1:nrow(df), function(s){
-lapply(1:nrow(df), function(s){
+mclapply(1:nrow(df), function(s){
+#lapply(1:nrow(df), function(s){
   print(s)
-  if(!file.exists(sprintf("data/index2/Maxent_%s_%s_%s_%s_testData%s.RDS",df$vs[s], df$points[s],df$replicates[s],df$cv[2],df$testData[s]))){
+  if(!file.exists(sprintf("data/results3/Maxent_%s_%s_%s_%s_testData%s.RDS",df$vs[s], df$points[s],df$replicates[s],df$cv[2],df$testData[s]))){
     #for (s in 1:nrow(df)){
     df2=df[s,]
     
@@ -47,7 +47,7 @@ lapply(1:nrow(df), function(s){
                                     trainingData=sf::read_sf(sprintf("data/processed/dataPartition_random/PA/%s_%s_%s.gpkg",df$vs[s],df$points[s],df$replicates[s]))%>%dplyr::filter(Real==1)%>%dplyr::filter(fold != df$testData[s]),
                                     aa=TRUE,
                                     environmentalVariables=terra::rast("data/variables.tif"),
-                                    noPointsTesting=NA)
+                                    noPointsTesting=1000)
     dfPAA=df2
     dfPAA$index<- index$indexPAA$metric
     dfPAA$AUC<- index$indexPAA$AUC
@@ -83,54 +83,17 @@ lapply(1:nrow(df), function(s){
       df2=rbind( dfPAA, dfPBG)
     } else {df2=rbind(dfPA, dfPAA, dfPBG)}
     
-    rm(index, p,vs, dfPA, dfPAA, dfPBG)
-    saveRDS(df2, sprintf("data/index2/Maxent_%s_%s_%s_%s_testData%s.RDS",df$vs[s], df$points[s],df$replicates[s],df$cv[2],df$testData[s]))
+    rm(index, p,vs, dfPA, dfPAA, dfPBG);gc()
+    saveRDS(df2, sprintf("data/results3/Maxent_%s_%s_%s_%s_testData%s.RDS",df$vs[s], df$points[s],df$replicates[s],df$cv[2],df$testData[s]))
   }
-})
-#}, mc.cores=45)
+#})
+}, mc.cores=45)
 
 
-l=list.files("data/index2/", full.names=T)
+l=list.files("data/results3/", full.names=T)
 l=do.call(rbind, lapply(l, function(x){
   data=readRDS(x)
   return(data)}))
-
-#data=l%>%dplyr::mutate(diffPA=abs(COR-indexPA),
-#                       diffPAA=abs(COR-indexPAA),
-#                       diffPBG=abs(COR-indexPBG))
-
-
-
-#dataPA=data.frame(value=data$diffPA, method="indexPA")
-#dataPAA=data.frame(value=data$diffPAA, method="indexPAA")
-#dataPBG=data.frame(value=data$diffPBG, method="indexPBG")
-#dataPlots=rbind(dataPA, dataPAA, dataPBG);rm(dataPA,dataPAA,dataPBG)
-
-#data=l %>% dplyr::filter(method=="PAA")
-
-
-
-#long <- data %>% 
-#  pivot_longer(
-#    cols = c(  "index" ,     "AUC" ,       "COR"    ,"stability",  "trueCOR" ), 
-#    names_to = "metric",
-#    values_to = "value"
-#  )
-
-# Plot
-#long %>% #dplyr::filter(method==PA)%>%
-#  ggplot( aes(x=metric,y=value, color=metric, shape=metric)) + 
-#  geom_point(size=4) +facet_wrap(vars(vs,points))
-
-
-#x=l#%>%dplyr::filter(method=="PBG")#%>%dplyr::filter(points==40)
-#cor(x$COR, x$trueCOR)
-#cor(x$AUC, x$trueCOR)
-#cor(x$index, x$trueCOR)
-#cor(x$stability , x$COR)
-
-#x=l%>%dplyr::filter(method=="PA")
-#plot(x$index, x$trueCOR)
 
 
 
@@ -146,14 +109,14 @@ l[l < 0] <- 0
 #mae_outliers <- mean(abs(residuals[outliers]))
 
 
-indexCalculation2 <- function(COR,stability,AUC,MAE,PRG,BIAS) {
+indexCalculation2 <- function(COR,stability,AUC,MAE,PRG,BIAS, index) {
   
-  if(AUC < 0.5) AUC<-0.5
-  aucRescale=data.frame(AUCnew=c(rep(0,21),seq(0,1,0.05)),
-                        AUC=c(seq(0,0.5,0.025),seq(0.5,1,0.025)))
+ # if(AUC < 0.5) AUC<-0.5
+  #aucRescale=data.frame(AUCnew=c(rep(0,21),seq(0,1,0.05)),
+   #                    AUC=c(seq(0,0.5,0.025),seq(0.5,1,0.025)))
   
   # Interpolate to get rescaled values
-  AUC=approx(x = aucRescale$AUC, y = aucRescale$AUCnew, xout = AUC)$y
+  #AUC=approx(x = aucRescale$AUC, y = aucRescale$AUCnew, xout = AUC)$y
   
   
   metric=mean(c(COR,stability,AUC,1-MAE,1-BIAS))
@@ -173,7 +136,7 @@ indexCalculation <- function(COR,stability,AUC,MAE,PRG) {
 
 l$index2<-NA
 lapply(1:nrow(l), function(x){
-  index<-indexCalculation2(COR=l$COR[x],stability = l$stability[x],AUC=l$PRG[x],MAE=l$MAE[x], PRG=l$PRG[x], BIAS=l$BIAS[x])
+  index<-indexCalculation2(COR=l$COR[x],stability = l$stability[x],AUC=l$PRG[x],MAE=l$MAE[x], PRG=l$PRG[x], BIAS=l$BIAS[x], index=l$index[x])
   l$index2[x]<<-index
 })
 
@@ -184,7 +147,7 @@ lapply(1:nrow(l), function(x){
 #  index<-indexCalculation(COR=l$COR[x],stability = l$stability[x],AUC=l$PRG[x],MAE=l$MAE[x])
 #  l$index[x]<<-index
 #})
-
+#backup<-l
 l=l%>%dplyr::filter(method=="PAA")
 p1<-ggplot(l, aes(x=AUC, y=trueCOR,color=points)) + 
   geom_point() +ylim(0,1)+xlim(0,1)+facet_wrap(vars(method))+
@@ -215,7 +178,7 @@ p6<-ggplot(l, aes(x=stability, y=trueCOR,color=points)) +
   geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
   theme_ipsum()
 
-gridExtra::grid.arrange(p1,p2,p3,p4,p6,nrow=2,ncol=3);rm(p1,p2,p3,p4,p6)
+gridExtra::grid.arrange(p1,p2,p3,p4,p6,nrow=3,ncol=2);rm(p1,p2,p3,p4,p6)
 
 l %>% 
   group_by(method) %>% 
@@ -233,3 +196,4 @@ l %>%
 
 
 ########## fehlerbehebung
+
