@@ -47,7 +47,8 @@ performanceStabilityIndex <- function(
     aa = TRUE,
     environmentalVariables = NA,
     trainingData = NA,
-    noPointsTesting = NA
+    noPointsTesting = NA,
+    artificialPresence=F
 ) {
   requireNamespace("sf")
   requireNamespace("terra")
@@ -63,6 +64,8 @@ performanceStabilityIndex <- function(
   if (!(inherits(environmentalVariables, "SpatRaster") || is.na(environmentalVariables))) stop("'environmentalVariables' must be either a terra::SpatRaster object or NA.")
   if (!(inherits(trainingData, "sf") || is.na(trainingData))) stop("'trainingData' must be an sf object or NA")
   if (!(is.numeric(noPointsTesting) || is.na(noPointsTesting))) stop("'noPointsTesting' must be a numeric value or NA")
+  
+
   
   if (inherits(absence, "sf") && nrow(absence) < 1) {
     absence <- FALSE
@@ -85,37 +88,31 @@ performanceStabilityIndex <- function(
     noPointsTesting <- nrow(presence)
   }
   
+  if (nrow(presence) > 20 && isTRUE(artificialPresence)){
+    artificialPresence <- F
+    message("There are at least 20 presence points available. No calculation of artifial presence data.")
+  }
+  
+  if (isTRUE(artificialPresence) && noPointsTesting < 20){
+    noPointsTesting<-20
+    message("Number of artifical absence and presence data to sample is set to 20 (each).")
+  }
+  
   pred <- terra::mean(x)
   pred=climateStability::rescale0to1(pred)
   stability <- stabilityRasters(x)
   
   if (isTRUE(background)) {
-    bg_df <- as.data.frame(predicts::backgroundSample(environmentalVariables, n = noPointsTesting*5))
+    bg_df <- suppressMessages(as.data.frame(predicts::backgroundSample(environmentalVariables, n = noPointsTesting*5)))
     bg_df <- bg_df%>%dplyr::slice_sample( n=noPointsTesting)
     bg <- sf::st_as_sf(bg_df, coords = c("x", "y"), crs = terra::crs(environmentalVariables), remove = FALSE)
     
     inputPBG <- na.omit(rbind(
       data.frame(predicted = terra::extract(pred, presence)[[2]], observed = 1),
-      data.frame(predicted = terra::extract(pred, dplyr::sample_n(bg, nrow(presence)))[[2]], observed = 0)
+      data.frame(predicted = terra::extract(pred, dplyr::sample_n(bg, noPointsTesting))[[2]], observed = 0)
     ))
     indexPBG <- indexCalculation(inputPBG, stability)
   } else indexPBG <- NA
-  
-  if (is.logical(aa) && isTRUE(aa)) {
-    extr <- terra::extract(environmentalVariables, trainingData, ID = FALSE)
-    aoa_result <- suppressMessages(CAST::aoa(newdata = environmentalVariables, train = extr, variables = "all",verbose = FALSE))
-    aa_mask <- aoa_result$AOA
-    aa_mask[aa_mask > 0] <- NA
-    aa_df <- as.data.frame(predicts::backgroundSample(aa_mask, n = noPointsTesting*5, tryf = 5))
-    aa_df <- aa_df%>%dplyr::slice_sample(n=noPointsTesting)
-    aa <- sf::st_as_sf(aa_df, coords = c("x", "y"), crs = terra::crs(aa_mask), remove = FALSE)
-    
-    inputPAA <- na.omit(rbind(
-      data.frame(predicted = terra::extract(pred, presence)[[2]], observed = 1),
-      data.frame(predicted = terra::extract(pred, dplyr::sample_n(aa, nrow(presence)))[[2]], observed = 0)
-    ))
-    indexPAA <- indexCalculation(inputPAA, stability)
-  } else indexPAA <- NA
   
   if (!is.logical(absence) || !isFALSE(absence)) {
     inputPA <- na.omit(rbind(
@@ -125,11 +122,59 @@ performanceStabilityIndex <- function(
     indexPA <- indexCalculation(inputPA, stability)
   } else indexPA <- NA
   
-  list(
+  if (is.logical(aa) && isTRUE(aa) | isTRUE(artificialPresence)) {
+    extr <- terra::extract(environmentalVariables, trainingData, ID = FALSE)
+    aoa_result <- suppressMessages(CAST::aoa(newdata = environmentalVariables, train = extr, variables = "all",verbose = FALSE))
+    # sample artificial absence points
+    if (isTRUE(aa)) {
+      aa_mask <- aoa_result$AOA
+      aa_mask[aa_mask > 0] <- NA
+      aa_df <- suppressMessages(as.data.frame(predicts::backgroundSample(aa_mask, n = noPointsTesting*5, tryf = 5)))
+      aa_df <- aa_df %>% dplyr::slice_sample(n = noPointsTesting)
+      aa <- sf::st_as_sf(aa_df, coords = c("x", "y"), crs = terra::crs(aa_mask), remove = FALSE)
+      
+      inputPAA <- na.omit(rbind(
+        data.frame(predicted = terra::extract(pred, presence)[[2]], observed = 1),
+        data.frame(predicted = terra::extract(pred, dplyr::sample_n(aa, noPointsTesting))[[2]], observed = 0)
+      ))
+      indexPAA <- indexCalculation(inputPAA, stability)
+    } else indexPAA <- NA
+    rm(aa_mask,aa_df,inputPAA)
+    
+    if(isTRUE(artificialPresence)){
+      apaa_mask <- aoa_result$AOA
+      apaa_mask[apaa_mask <= 0] <- NA
+      apaa_df <- suppressMessages(as.data.frame(predicts::backgroundSample(apaa_mask, n = noPointsTesting*5, tryf = 5)))
+      apaa_df <- apaa_df%>%dplyr::slice_sample(n=noPointsTesting-nrow(presence))
+      apaa <- sf::st_as_sf(apaa_df, coords = c("x", "y"), crs = terra::crs(apaa_mask), remove = FALSE)
+      
+      inputAPAA <- na.omit(rbind(
+        data.frame(predicted = terra::extract(pred, presence)[[2]], observed = 1),
+        data.frame(predicted = terra::extract(pred, apaa)[[2]], observed = 1),
+        data.frame(predicted = terra::extract(pred, dplyr::sample_n(aa, noPointsTesting))[[2]], observed = 0)
+      ))
+      indexAPAA <- indexCalculation(inputAPAA, stability)
+    } else indexAPAA <- indexPA
+    rm(apaa_mask,aoa_result,apaa_df,apaa,inputAPAA)
+  }
+  
+  
+  if (!is.logical(absence) || !isFALSE(absence)) {
+    inputPA <- na.omit(rbind(
+      data.frame(predicted = terra::extract(pred, presence)[[2]], observed = 1),
+      data.frame(predicted = terra::extract(pred, absence)[[2]], observed = 0)
+    ))
+    indexPA <- indexCalculation(inputPA, stability)
+  } else indexPA <- NA
+  
+  data=list(
     indexPA = indexPA,
+    indexAPAA = indexAPAA,
     indexPAA = indexPAA,
     indexPBG = indexPBG
   )
+  gc()
+  return(data)
 }
 
 stabilityRasters <- function(r) {
@@ -145,14 +190,15 @@ indexCalculation <- function(inputDF, stability) {
   AUC <- Metrics::auc(inputDF$observed, inputDF$predicted)
   PRG <- prg::calc_auprg(prg::create_prg_curve(inputDF$observed, inputDF$predicted))
   MAE <- Metrics::mae(inputDF$observed, inputDF$predicted)
-  BIAS <-  Metrics::bias(inputDF$observed, inputDF$predicted)
+  BIAS <-  abs(Metrics::bias(inputDF$observed, inputDF$predicted))
   values <- c(COR, 0, 0, 0, stability, 0, 0, 0, PRG)
   metric <- Lithics3D:::getTArea(values)
-  metric <- metric / 0.8660254
+  metric <- (metric / 0.8660254)
   X <- indexX(inputDF)
+  indexA <- indexAbsence(inputDF)
   
-  metric=data.frame(metric=metric, AUC=AUC, COR=COR,stability=stability, PRG=PRG, MAE=MAE, BIAS=BIAS, X=X)
-  return(metric)
+  result=data.frame(metric=metric, AUC=AUC, COR=COR,stability=stability, PRG=PRG, MAE=MAE, BIAS=BIAS, X=X, indexA=indexA, noPresencePoints=nrow(inputDF[inputDF$observed ==1,]))
+  return(result)
 }
 
 
@@ -160,14 +206,31 @@ indexX <- function(inputDF){
   absence=inputDF[inputDF$observed==0,]$predicted
   presence=inputDF[inputDF$observed==1,]$predicted
   v=c()
-  for (a in absence){
-    for(p in presence){
-      values <- c(1-a, 0, 0, 0, p, 0, 0, 0, 0)#<-letzter wert war cor
-      metric=Lithics3D:::getTArea(values)
-      print(paste0("metric: ",metric,". Absence: ", a, " . Presence: ", p))
-      v=append(v,metric)
-    }
+  #for (a in absence){
+  for(p in presence){
+    values <- c(1, 0, 0, 0, p, 0, 0, 0, 0)#<-letzter wert war cor
+    metric=Lithics3D:::getTArea(values)
+    
+    v=append(v,metric)
+    #  }
   }
   metric=(mean(v)/0.5)
   return(metric)
 }
+
+indexAbsence <- function(inputDF){
+  absence=inputDF[inputDF$observed==0,]$predicted
+  
+  v=c()
+  for (a in absence){
+    #for(p in presence){
+    values <- c(1, 0, 0, 0, 1-a, 0, 0, 0, 0)#<-letzter wert war cor
+    metric=Lithics3D:::getTArea(values)
+    
+    v=append(v,metric)
+    #  }
+  }
+  metric=(mean(v)/0.5)
+  return(metric)
+}
+

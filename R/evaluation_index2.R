@@ -26,13 +26,12 @@ df=expand.grid(vs=gsub(".tif","",list.files("data/paRaster/", pattern=".tif", fu
 
 #df=df%>%dplyr::filter(df$vs == "VS01")
 
-if(!dir.exists("data/results3")) dir.create("data/results3")
+if(!dir.exists("data/resultsAPAA")) dir.create("data/resultsAPAA")
 
 mclapply(1:nrow(df), function(s){
-#lapply(1:nrow(df), function(s){
+  #lapply(1:nrow(df), function(s){
   print(s)
-  if(!file.exists(sprintf("data/results3/Maxent_%s_%s_%s_%s_testData%s.RDS",df$vs[s], df$points[s],df$replicates[s],df$cv[2],df$testData[s]))){
-    #for (s in 1:nrow(df)){
+  if(!file.exists(sprintf("data/resultsAPAA/Maxent_%s_%s_%s_%s_testData%s.RDS",df$vs[s], df$points[s],df$replicates[s],df$cv[2],df$testData[s]))){
     df2=df[s,]
     
     # s=1 
@@ -47,7 +46,8 @@ mclapply(1:nrow(df), function(s){
                                     trainingData=sf::read_sf(sprintf("data/processed/dataPartition_random/PA/%s_%s_%s.gpkg",df$vs[s],df$points[s],df$replicates[s]))%>%dplyr::filter(Real==1)%>%dplyr::filter(fold != df$testData[s]),
                                     aa=TRUE,
                                     environmentalVariables=terra::rast("data/variables.tif"),
-                                    noPointsTesting=1000)
+                                    noPointsTesting=NA,
+                                    artificialPresence=T)
     dfPAA=df2
     dfPAA$index<- index$indexPAA$metric
     dfPAA$AUC<- index$indexPAA$AUC
@@ -55,8 +55,26 @@ mclapply(1:nrow(df), function(s){
     dfPAA$PRG<- index$indexPAA$PRG
     dfPAA$MAE<- index$indexPAA$MAE
     dfPAA$BIAS<- index$indexPAA$BIAS
+    dfPAA$X<- index$indexPAA$X
+    dfPAA$indexA<- index$indexPAA$indexA
     dfPAA$stability<- index$indexPAA$stability
     dfPAA$method <- "PAA"
+    dfPAA$noPresencePoints <- index$indexPAA$noPresencePoints
+    
+    if (!is.na(index$indexAPAA)[1]){
+      dfAPAA=df2
+      dfAPAA$index<- index$indexAPAA$metric
+      dfAPAA$AUC<- index$indexAPAA$AUC
+      dfAPAA$COR<- index$indexAPAA$COR
+      dfAPAA$PRG<- index$indexAPAA$PRG
+      dfAPAA$MAE<- index$indexAPAA$MAE
+      dfAPAA$BIAS<- index$indexAPAA$BIAS
+      dfAPAA$X<- index$indexAPAA$X
+      dfAPAA$indexA<- index$indexAPAA$indexA
+      dfAPAA$stability<- index$indexAPAA$stability
+      dfAPAA$method <- "APAA"
+      dfAPAA$noPresencePoints <- index$indexAPAA$noPresencePoints
+    }
     
     if (!is.na(index$indexPA)[1]){
       dfPA=df2
@@ -68,9 +86,14 @@ mclapply(1:nrow(df), function(s){
       dfPA$MAE<- index$indexPA$MAE
       dfPA$BIAS<- index$indexPA$BIAS
       dfPA$method <- "PA"
+      dfPA$X<- index$indexPA$X
+      dfPA$indexA<- index$indexPA$indexA
+      dfPA$noPresencePoints <- index$indexPA$noPresencePoints
     }
     dfPBG=df2
     dfPBG$index<- index$indexPBG$metric
+    dfPBG$X<- index$indexPBG$X
+    dfPBG$indexA<- index$indexPBG$indexA
     dfPBG$AUC<- index$indexPBG$AUC
     dfPBG$COR<- index$indexPBG$COR
     dfPBG$stability<- index$indexPBG$stability
@@ -78,26 +101,30 @@ mclapply(1:nrow(df), function(s){
     dfPBG$MAE<- index$indexPBG$MAE
     dfPBG$BIAS<- index$indexPBG$BIAS
     dfPBG$method <- "PBG"
+    dfPBG$noPresencePoints <- index$indexPBG$noPresencePoints
     
     if (is.na(index$indexPA)[1]){
-      df2=rbind( dfPAA, dfPBG)
-    } else {df2=rbind(dfPA, dfPAA, dfPBG)}
+      df2=rbind( dfPAA, dfPBG,dfAPAA)
+    } else {df2=rbind(dfPA, dfPAA, dfPBG,dfAPAA)}
     
-    rm(index, p,vs, dfPA, dfPAA, dfPBG);gc()
-    saveRDS(df2, sprintf("data/results3/Maxent_%s_%s_%s_%s_testData%s.RDS",df$vs[s], df$points[s],df$replicates[s],df$cv[2],df$testData[s]))
+    rm(index, p,vs, dfPA, dfPAA, dfPBG,dfAPAA);gc()
+    saveRDS(df2, sprintf("data/resultsAPAA/Maxent_%s_%s_%s_%s_testData%s.RDS",df$vs[s], df$points[s],df$replicates[s],df$cv[2],df$testData[s]))
   }
-#})
+  #})
 }, mc.cores=45)
 
 
-l=list.files("data/results3/", full.names=T)
+l=list.files("data/resultsAPAA/", full.names=T)
 l=do.call(rbind, lapply(l, function(x){
   data=readRDS(x)
   return(data)}))
 
 
-
-l[l < 0] <- 0
+l$index <- round(l$index,4)
+l$diffIndex <- round(abs(l$index - l$trueCOR),4)
+l$diffIndex2 <- round(abs(l$index2 - l$trueCOR),4)
+l$trueCOR <- abs(l$trueCOR)
+#l[l < 0] <- 0
 #l=l%>%dplyr::filter(method=="PAA")
 
 # Mean absoulte error of outliers
@@ -109,24 +136,38 @@ l[l < 0] <- 0
 #mae_outliers <- mean(abs(residuals[outliers]))
 
 
-indexCalculation2 <- function(COR,stability,AUC,MAE,PRG,BIAS, index) {
+indexCalculation3 <- function(COR,stability,AUC,MAE,PRG,BIAS, index) {
   
- # if(AUC < 0.5) AUC<-0.5
-  #aucRescale=data.frame(AUCnew=c(rep(0,21),seq(0,1,0.05)),
-   #                    AUC=c(seq(0,0.5,0.025),seq(0.5,1,0.025)))
+  if(AUC < 0.5) AUC<-0.5
+  aucRescale=data.frame(AUCnew=c(rep(0,21),seq(0,1,0.05)),
+                        AUC=c(seq(0,0.5,0.025),seq(0.5,1,0.025)))
   
   # Interpolate to get rescaled values
-  #AUC=approx(x = aucRescale$AUC, y = aucRescale$AUCnew, xout = AUC)$y
+  AUC=approx(x = aucRescale$AUC, y = aucRescale$AUCnew, xout = AUC)$y
+  metric1= mean(c(COR,stability,AUC))
+  metric2=mean(c(COR,stability,AUC,1-BIAS,1-MAE))
+  if( metric2 > metric1) metric <- metric1 
+  if (metric2 < metric1) metric <- metric2
+  return(metric)
+}
+
+indexCalculation2 <- function(COR,stability,AUC,MAE,PRG,BIAS, index) {
   
+  # if(AUC < 0.5) AUC<-0.5
+  #  aucRescale=data.frame(AUCnew=c(rep(0,21),seq(0,1,0.05)),
+  #              AUC=c(seq(0,0.5,0.025),seq(0.5,1,0.025)))
   
-  metric=mean(c(COR,stability,AUC,1-MAE,1-BIAS))
+  # Interpolate to get rescaled values
+  # AUC=approx(x = aucRescale$AUC, y = aucRescale$AUCnew, xout = AUC)$y
+  metric= mean(c(COR,stability,AUC,1-MAE,1-BIAS))
+  
   return(metric)
 }
 
 
 indexCalculation <- function(COR,stability,AUC,MAE,PRG) {
   
-  #if (stability < 0){stability <- 0}
+  if (stability < 0){stability <- 0}
   values <- c(AUC, 0, 0, 0, stability, 0, 0, 0, COR)
   metric=Lithics3D:::getTArea(values)
   metric= metric / 0.8660254
@@ -134,66 +175,76 @@ indexCalculation <- function(COR,stability,AUC,MAE,PRG) {
   return(metric)
 }
 
+
+
 l$index2<-NA
 lapply(1:nrow(l), function(x){
   index<-indexCalculation2(COR=l$COR[x],stability = l$stability[x],AUC=l$PRG[x],MAE=l$MAE[x], PRG=l$PRG[x], BIAS=l$BIAS[x], index=l$index[x])
   l$index2[x]<<-index
 })
 
-
+#l$index3<-NA
+#lapply(1:nrow(l), function(x){
+#  index<-indexCalculation3(COR=l$COR[x],stability = l$stability[x],AUC=l$PRG[x],MAE=l$MAE[x], PRG=l$PRG[x], BIAS=l$BIAS[x], index=l$index[x])
+#  l$index3[x]<<-index
+#})
 
 #l$index<-NA
 #lapply(1:nrow(l), function(x){
 #  index<-indexCalculation(COR=l$COR[x],stability = l$stability[x],AUC=l$PRG[x],MAE=l$MAE[x])
 #  l$index[x]<<-index
 #})
-#backup<-l
-l=l%>%dplyr::filter(method=="PAA")
-p1<-ggplot(l, aes(x=AUC, y=trueCOR,color=points)) + 
-  geom_point() +ylim(0,1)+xlim(0,1)+facet_wrap(vars(method))+
+
+if(dplyr::n_distinct(l$method)> 1) backup<-l
+
+
+#l=l%>%dplyr::filter(method=="PAA")
+
+p1<-ggplot(l, aes(x=AUC, y=trueCOR)) + 
+  geom_point() +ylim(0,1)+xlim(0,1)+facet_wrap(vars(method),nrow=1)+
   geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
   theme_ipsum()
 
-p2<-ggplot(l, aes(x=COR, y=trueCOR,color=points)) + 
-  geom_point() +ylim(0,1)+xlim(0,1)+facet_wrap(vars(method))+
-  geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
-  theme_ipsum()
-
-p3=ggplot(l, aes(x=index, y=trueCOR,color=points))+
-  geom_point()+ylim(0,1)+xlim(0,1)+facet_wrap(vars(method))+
-  geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
-  theme_ipsum()
-
-
-p4=ggplot(l, aes(x=index2, y=trueCOR,color=points)) + 
-  geom_point() +ylim(0,1)+xlim(0,1)+ facet_wrap(vars(method))+
+p2<-ggplot(l, aes(x=COR, y=trueCOR)) + 
+  geom_point() +ylim(0,1)+xlim(0,1)+facet_wrap(vars(method),nrow=1)+
   geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
   theme_ipsum()
 
 
 
-
-p6<-ggplot(l, aes(x=stability, y=trueCOR,color=points)) + 
-  geom_point() +ylim(0,1)+xlim(0,1)+ facet_wrap(vars(method))+
+p3=ggplot(l, aes(x=index2, y=trueCOR)) + 
+  geom_point() +ylim(0,1)+xlim(0,1)+ facet_wrap(vars(method),nrow=1)+
   geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
   theme_ipsum()
 
-gridExtra::grid.arrange(p1,p2,p3,p4,p6,nrow=3,ncol=2);rm(p1,p2,p3,p4,p6)
+
+
+gridExtra::grid.arrange(p1,p2,p3,nrow=3,ncol=1)#;rm(p1,p2,p3,p4,p6)
 
 l %>% 
   group_by(method) %>% 
-  summarise(Rsq_index = R2(index, trueCOR),
-            RMSE_index = RMSE(index,trueCOR),
-            Rsq_index2 = R2(index2, trueCOR),
-            RMSE_index2 = RMSE(index2,trueCOR),
-            Rsq_COR = R2(COR, trueCOR),
-            RMSE_COR = RMSE(COR,trueCOR),
-            Rsq_AUC = R2(AUC, trueCOR),
-            RMSE_AUC = RMSE(AUC,trueCOR)
+  summarise(
+    Rsq_index2 = R2(index2, trueCOR),
+    RMSE_index2 = RMSE(index2,trueCOR),
+    
+    Rsq_COR = R2(COR, trueCOR),
+    RMSE_COR = RMSE(COR,trueCOR),
+    Rsq_AUC = R2(AUC, trueCOR),
+    RMSE_AUC = RMSE(AUC,trueCOR)
   ) %>% 
   mutate_if(is.numeric, round, digits=2) 
 
 
-
 ########## fehlerbehebung
 
+
+#mod=caret::train(x=l[,c("index","AUC","COR","stability","MAE","BIAS","X","indexA" )],y=l$trueCOR,method="rf",
+#                trControl = trainControl())
+#saveRDS(mod, "data/model.RDS")
+
+
+#pred=predict(object=readRDS("data/model.RDS"),newdata=l[,c("index","AUC","COR","stability","MAE","BIAS","X","indexA" )])
+#l$pred <- pred
+#saveRDS(l,"data/results.RDS")
+
+#test=l%>%dplyr::filter(noPresencePoints == 20)
