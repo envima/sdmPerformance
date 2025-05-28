@@ -1,3 +1,13 @@
+#'@name 01_virtualspecies.R
+#'@date 28.02.2025
+#'@author Lisa Bald [bald@staff.uni-marburg.de]
+#'@author 
+#'@description train a model for each virtual species
+#'@description code taken from the benchmark study of Valavi et al. 2023 DOI: https://doi.org/10.1111/geb.13639
+#'@misc OSF repository of the study of Valavi et al. 2023: DOI: 10.17605/OSF.IO/G6DC3
+#'@source https://osf.io/puk8v (of the code for the models)
+
+
 library(virtualspecies)
 library(tidyverse)
 

@@ -114,7 +114,7 @@ mclapply(1:nrow(df), function(s){
 }, mc.cores=45)
 
 
-l=list.files("data/resultsAPAA/", full.names=T)
+l=list.files("data/resultsAPAA/", full.names=T,pattern=".RDS")
 l=do.call(rbind, lapply(l, function(x){
   data=readRDS(x)
   return(data)}))
@@ -199,7 +199,7 @@ if(dplyr::n_distinct(l$method)> 1) backup<-l
 
 
 #l=l%>%dplyr::filter(method=="PAA")
-
+l=l%>%dplyr::filter(method != "APAA")
 p1<-ggplot(l, aes(x=AUC, y=trueCOR)) + 
   geom_point() +ylim(0,1)+xlim(0,1)+facet_wrap(vars(method),nrow=1)+
   geom_smooth(method=lm , color="red", fill="#69b3a2", se=TRUE) +
