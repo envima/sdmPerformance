@@ -99,7 +99,7 @@ performanceStabilityIndex <- function(
   if (isTRUE(background)) {
     
     indexPBG=do.call("rbind",lapply(1:replicates, function(i) {
-    
+      message(paste("Start calculating metrics on presence-background data with ",replicates, "replicates."))
       bg_df <- suppressMessages(as.data.frame(predicts::backgroundSample(environmentalVariables, n = noPointsTesting*5)))
       bg_df <- bg_df%>%dplyr::slice_sample( n=noPointsTesting)
       bg <- sf::st_as_sf(bg_df, coords = c("x", "y"), crs = terra::crs(environmentalVariables), remove = FALSE)
@@ -133,6 +133,7 @@ performanceStabilityIndex <- function(
     aa_mask[aa_mask > 0] <- NA
     # replicates
     indexPAA=do.call("rbind",lapply(1:replicates, function(i) {
+      message(paste("Start calculating metrics on presence-artificial-absence data with ",replicates, "replicates."))
       aa_df <- suppressMessages(as.data.frame(predicts::backgroundSample(aa_mask, n = noPointsTesting*5, tryf = 5)))
       aa_df <- aa_df %>% dplyr::slice_sample(n = noPointsTesting)
       aa <- sf::st_as_sf(aa_df, coords = c("x", "y"), crs = terra::crs(aa_mask), remove = FALSE)
@@ -147,7 +148,7 @@ performanceStabilityIndex <- function(
     )
     indexPAA=indexPAA %>% dplyr::summarize_all(mean)
     
-    rm(aa_mask,aa_df,inputPAA, aoa_result,extr);gc()
+    rm(aa_mask, aoa_result,extr);gc()
   } else indexPAA <- NA
   
   

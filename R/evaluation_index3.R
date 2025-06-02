@@ -50,7 +50,8 @@ mclapply(1:nrow(df), function(s){
                                     trainingData=sf::read_sf(sprintf("data/processed/dataPartition_random/PA/%s_%s_%s.gpkg",df$vs[s],df$points[s],df$replicates[s]))%>%dplyr::filter(Real==1)%>%dplyr::filter(fold != df$testData[s]),
                                     aa=TRUE,
                                     environmentalVariables=terra::rast("data/variables.tif"),
-                                    noPointsTesting=NA)
+                                    noPointsTesting=NA,
+                                    replicates=1000)
     # bring everything together in one df
     index$vs <- df2$vs
     index$points <- df2$points
@@ -65,7 +66,7 @@ mclapply(1:nrow(df), function(s){
     rm(index, p,vs,df2);gc()
   }
   
-}, mc.cores=45)
+}, mc.cores=55)
 
 
 if (!file.exists("data/output/Maxent/resultsReplicates.RDS")){
@@ -73,7 +74,7 @@ if (!file.exists("data/output/Maxent/resultsReplicates.RDS")){
   l=do.call(rbind, lapply(l, function(x){
     data=readRDS(x)
     return(data)}))
-  saveRDS(l, "data/output/Maxent/results.RDS")
+  saveRDS(l, "data/output/Maxent/resultsReplicates.RDS")
 };rm(l)
 
 
@@ -84,11 +85,37 @@ if (!file.exists("data/output/Maxent/resultsReplicates.RDS")){
 
 
 
+indexCalculation <- function(inputDF, stability) {
+  COR <- if (length(unique(inputDF$predicted)) > 1) cor(inputDF$observed, inputDF$predicted) else NA
+  if (COR < 0) COR<-0
+  AUC <- Metrics::auc(inputDF$observed, inputDF$predicted)
+  PRG <- prg::calc_auprg(prg::create_prg_curve(inputDF$observed, inputDF$predicted))
+  MAE <- Metrics::mae(inputDF$observed, inputDF$predicted)
+  BIAS <-  abs(Metrics::bias(inputDF$observed, inputDF$predicted))
+  evalDat=mecofun::evalSDM(inputDF$observed, inputDF$predicted)
+  TSS=evalDat$TSS
+  Kappa=evalDat$Kappa
+  PCC=evalDat$PCC
+  Sens=evalDat$Sens
+  Spec=evalDat$Spec
+  metric= mean(c(COR,stability,AUC,1-MAE,1-BIAS))
+  # all metrics in one df
+  result=data.frame(metric=metric, AUC=AUC, COR=COR, Spec,Sens,Kappa,PCC, TSS,stability=stability, PRG=PRG, MAE=MAE, BIAS=BIAS, noPresencePoints=nrow(inputDF[inputDF$observed ==1,]))
+  return(result)
+}
+
+
+l$index2<-NA
+lapply(1:nrow(l), function(x){
+  index<-indexCalculation(COR=l$COR[x],stability = l$stability[x],AUC=l$PRG[x],MAE=l$MAE[x], PRG=l$PRG[x], BIAS=l$BIAS[x], index=l$index[x])
+  l$index2[x]<<-index
+})
 
 
 
 
-data=readRDS("data/output/Maxent/results.RDS")
+
+data=readRDS("data/output/Maxent/resultsReplicates.RDS")
 data$method=gsub("index","",data$method)
 
 
