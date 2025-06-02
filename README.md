@@ -28,4 +28,4 @@ Image on the left: Shows AUC calculate on Presence-Absence data.
 Image in the middle: Shows AUC calculated on Presence-Only and background data. This is the combination that is probably most often used in reality. 
 
 Image on the right: Shows a metric (not the AUC!) calculated from severals performance metrics to average out the uncertainities of single metrics. Presnece-Only data are used togehter with artificial absence data.
-![](images/summary.png)
+![](images/summary2.png)
