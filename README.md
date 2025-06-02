@@ -1,5 +1,7 @@
 # Evaluation of presence-only species distribution models
 
+some further thoughts on this [here](https://docs.google.com/document/d/1w_g_zHOl-no0fK0e-9W92zZXBLmHuiEP_RfSP0wT39E/edit?usp=sharing). 
+
 In this study we show:
 1. that the exact same map of species distribution can mirror “unusable” or “near perfect” performance metrics based on the decision the modeler makes.
 2. that a metric calculated on several already established performance metrics can provide a more robust estimate of model performance.
