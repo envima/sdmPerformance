@@ -1,4 +1,4 @@
-#'@name 003_data_splitting.R
+#'@name 001_data_splitting.R
 #'@date 28.02.2025
 #'@author Lisa Bald [bald@staff.uni-marburg.de]
 #'@description split data into training validation and testing data
@@ -14,7 +14,16 @@
 library(blockCV)
 library(predicts)
 library(sf)
-setwd("M:/user/bald/SDM/sdmPerformance/")
+setwd("M:/user/bald/SDM/sdmPerformanceCaseStudy/")
+
+
+# 2 - example species ####
+#------------------------#
+
+# we picked the VS05 as an example with 120 PA points available
+vs=sf::read_sf("../sdmPerformance/data/PA/VS05_160_1.gpkg")
+
+
 
 # 2 - split data ####
 #--------------------#

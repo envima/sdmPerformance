@@ -13,6 +13,7 @@
 #' @param environmentalVariables Optional unless `background = TRUE` or `aa` is missing. A `terra::SpatRaster` with environmental covariates.
 #' @param noPointsTesting Integer. Number of background or artificial absence points to generate.
 #' @param trainingData Presence only data on which the model was trained. A `sf` object.
+#' @param prediction A `terra::SpatRaster` object with the prediction map.
 #'
 #' @return A named `list` with the following components:
 #' \describe{
@@ -40,6 +41,7 @@
 
 performanceStabilityIndex <- function(
     x = NA,
+    prediction,
     presence = NA,
     absence = FALSE,
     background = TRUE,
@@ -55,7 +57,8 @@ performanceStabilityIndex <- function(
   requireNamespace("Metrics")
   requireNamespace("dplyr")
   
-  if (!inherits(x, "SpatRaster")) stop("'x' must be a terra::SpatRaster object.")
+  if (!(inherits(x, "SpatRaster") || is.na(x)[1])) {stop("'x' must be a terra::SpatRaster object or NA.")}
+  if (!inherits(prediction, "SpatRaster")) stop("'prediction' must be an spatRaster object.")
   if (!inherits(presence, "sf")) stop("'presence' must be an sf object.")
   if (!(inherits(absence, "sf") || isFALSE(absence))) stop("'absence' must be an sf object or FALSE")
   if (!(inherits(background, "sf") || is.logical(background))) stop("'background' must be an sf object or a logical (TRUE/FALSE)")
@@ -75,7 +78,7 @@ performanceStabilityIndex <- function(
     stop("At least one of absence, background, or artificial absence (aa) must be provided.")
   }
   
-  if ((isTRUE(background) ||  isTRUE(aa)) && !inherits(x, "SpatRaster")) {
+  if ((isTRUE(background) ||  isTRUE(aa)) && !inherits(environmentalVariables, "SpatRaster")) {
     stop("Environmental variables must be provided to generate background or artificial absence data.")
   }
   
@@ -92,34 +95,43 @@ performanceStabilityIndex <- function(
     message("Number of artifical absence / background points to sample is set to 20.")
   }
   
-  pred <- terra::mean(x)
-  pred=climateStability::rescale0to1(pred)
-  stability <- stabilityRasters(x)
+  #pred <- terra::mean(x)
+  #pred=climateStability::rescale0to1(pred)
+  
+  if (inherits(x, "SpatRaster")) {
+    stability <- stabilityRasters(x)
+  } else {
+    stability <- NA
+    message("Skipping spatial stability calculation because 'x' is NA.")
+  }
+  
+  
+  
+  
   
   if (isTRUE(background)) {
-    
+    message(paste("Start calculating metrics on presence-background data with ",replicates, "replicates."))
     indexPBG=do.call("rbind",lapply(1:replicates, function(i) {
-      message(paste("Start calculating metrics on presence-background data with ",replicates, "replicates."))
       bg_df <- suppressMessages(as.data.frame(predicts::backgroundSample(environmentalVariables, n = noPointsTesting*5)))
       bg_df <- bg_df%>%dplyr::slice_sample( n=noPointsTesting)
       bg <- sf::st_as_sf(bg_df, coords = c("x", "y"), crs = terra::crs(environmentalVariables), remove = FALSE)
       
       inputPBG <- na.omit(rbind(
-        data.frame(predicted = terra::extract(pred, presence)[[2]], observed = 1),
-        data.frame(predicted = terra::extract(pred, dplyr::sample_n(bg, noPointsTesting))[[2]], observed = 0)
+        data.frame(predicted = terra::extract(prediction, presence)[[2]], observed = 1),
+        data.frame(predicted = terra::extract(prediction, dplyr::sample_n(bg, noPointsTesting))[[2]], observed = 0)
       ))
       indexPBG <- indexCalculation(inputPBG, stability)
     })#end replicates
     )
-    indexPBG=indexPBG %>% dplyr::summarize_all(mean)
+    indexPBG=indexPBG %>% dplyr::summarize_all(mean, na.rm = TRUE)
     
-   
+    
   } else indexPBG <- NA
   
   if (!is.logical(absence) || !isFALSE(absence)) {
     inputPA <- na.omit(rbind(
-      data.frame(predicted = terra::extract(pred, presence)[[2]], observed = 1),
-      data.frame(predicted = terra::extract(pred, absence)[[2]], observed = 0)
+      data.frame(predicted = terra::extract(prediction, presence)[[2]], observed = 1),
+      data.frame(predicted = terra::extract(prediction, absence)[[2]], observed = 0)
     ))
     indexPA <- indexCalculation(inputPA, stability)
   } else indexPA <- NA
@@ -132,21 +144,23 @@ performanceStabilityIndex <- function(
     aa_mask <- aoa_result$AOA
     aa_mask[aa_mask > 0] <- NA
     # replicates
+    message(paste("Start calculating metrics on presence-artificial-absence data with ",replicates, "replicates."))
     indexPAA=do.call("rbind",lapply(1:replicates, function(i) {
-      message(paste("Start calculating metrics on presence-artificial-absence data with ",replicates, "replicates."))
-      aa_df <- suppressMessages(as.data.frame(predicts::backgroundSample(aa_mask, n = noPointsTesting*5, tryf = 5)))
-      aa_df <- aa_df %>% dplyr::slice_sample(n = noPointsTesting)
+      aa_df <- suppressMessages(as.data.frame(predicts::backgroundSample(aa_mask, n = noPointsTesting*10, tryf = 10)))
+      if(nrow(aa_df)>noPointsTesting){
+        aa_df <- aa_df %>% dplyr::slice_sample(n = noPointsTesting)
+      }
       aa <- sf::st_as_sf(aa_df, coords = c("x", "y"), crs = terra::crs(aa_mask), remove = FALSE)
       
       inputPAA <- na.omit(rbind(
-        data.frame(predicted = terra::extract(pred, presence)[[2]], observed = 1),
-        data.frame(predicted = terra::extract(pred, dplyr::sample_n(aa, noPointsTesting))[[2]], observed = 0)
+        data.frame(predicted = terra::extract(prediction, presence)[[2]], observed = 1),
+        data.frame(predicted = terra::extract(prediction, dplyr::sample_n(aa, noPointsTesting))[[2]], observed = 0)
       ))
       indexPAA <- indexCalculation(inputPAA, stability)
       return(indexPAA)
     })#end replicates
     )
-    indexPAA=indexPAA %>% dplyr::summarize_all(mean)
+    indexPAA=indexPAA %>% dplyr::summarize_all(mean, na.rm = TRUE)
     
     rm(aa_mask, aoa_result,extr);gc()
   } else indexPAA <- NA
@@ -154,8 +168,8 @@ performanceStabilityIndex <- function(
   
   if (!is.logical(absence) || !isFALSE(absence)) {
     inputPA <- na.omit(rbind(
-      data.frame(predicted = terra::extract(pred, presence)[[2]], observed = 1),
-      data.frame(predicted = terra::extract(pred, absence)[[2]], observed = 0)
+      data.frame(predicted = terra::extract(prediction, presence)[[2]], observed = 1),
+      data.frame(predicted = terra::extract(prediction, absence)[[2]], observed = 0)
     ))
     indexPA <- indexCalculation(inputPA, stability)
   } else indexPA <- NA
@@ -194,7 +208,11 @@ stabilityRasters <- function(r) {
 
 indexCalculation <- function(inputDF, stability) {
   COR <- if (length(unique(inputDF$predicted)) > 1) cor(inputDF$observed, inputDF$predicted) else NA
-  if (COR < 0) COR<-0
+  if (is.na(COR)) {
+    COR <- NA
+  } else if (COR < 0) {
+    COR <- 0
+  }
   AUC <- Metrics::auc(inputDF$observed, inputDF$predicted)
   PRG <- prg::calc_auprg(prg::create_prg_curve(inputDF$observed, inputDF$predicted))
   MAE <- Metrics::mae(inputDF$observed, inputDF$predicted)
@@ -205,7 +223,13 @@ indexCalculation <- function(inputDF, stability) {
   PCC=evalDat$PCC
   Sens=evalDat$Sens
   Spec=evalDat$Spec
-  metric= mean(c(COR,stability,AUC,1-MAE,1-BIAS))
+  
+  if(is.na(stability)){
+    metric= mean(c(COR,AUC,1-MAE,1-BIAS), na.rm=T)
+  } else {
+    metric= mean(c(COR,stability,AUC,1-MAE,1-BIAS),na.rm=T)
+  }
+  
   # all metrics in one df
   result=data.frame(metric=metric, AUC=AUC, COR=COR, Spec,Sens,Kappa,PCC, TSS,stability=stability, PRG=PRG, MAE=MAE, BIAS=BIAS, noPresencePoints=nrow(inputDF[inputDF$observed ==1,]))
   return(result)
