@@ -1,4 +1,9 @@
-data
+data/run2
+data/climate/wc2.1_country
+data/folds
+data/PA
+data/paRaster
+data/virtualSpecies
 maxent.jar
 .Rhistory
 .Rproj.user
