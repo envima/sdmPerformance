@@ -18,6 +18,7 @@ A character string indicating the generation method (`"response"`, i.e., based o
 
 `details`:
 A list documenting how suitability was computed:
+
     * `variables`: The four bioclimatic variables used (`bio_1`, `bio_3`, `bio_7`, `bio_12`)
     * `formula`: The multiplicative combination of response functions used to compute suitability (`bio_1 * bio_3 * bio_7 * bio_12`)
     * `rescale.each.response`: Whether each response curve was individually rescaled to \[0,1]
