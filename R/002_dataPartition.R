@@ -17,8 +17,6 @@ library(sf)
 library(parallel)
 if (Sys.info()[[4]]=="PC19674") setwd("M:/user/bald/SDM/sdmPerformance/")
 
-
-
 # 2 - load species ####
 #------------------------#
 
@@ -26,23 +24,31 @@ if (Sys.info()[[4]]=="PC19674") setwd("M:/user/bald/SDM/sdmPerformance/")
 species=list.files("data/PA/",pattern=".gpkg",full.names=F)
 #size=c("knndm","random","clusters","block1","block2" ) 
 
-
-
-
-
-
 # 2 - split data ####
 #--------------------#
 
 if(! file.exists("data/bg.gpkg")){
   bg=as.data.frame(predicts::backgroundSample(terra::rast("data/variables.tif"), n=10000))
   bg=sf::st_as_sf(bg, coords=c("x","y"), crs="epsg:3577", remove=F)
+  
+  extr=terra::extract(vars,background,ID=F)
+  background$Real<- 0
+  background$Observed<-0
+  background=cbind(background,extr)
+  background$random <-  sample(1:6, size=nrow(background), replace = T)
+  background$KNNDM <-  sample(1:6, size=nrow(background), replace = T)
+  background$clusters <-  sample(1:6, size=nrow(background), replace = T)
+  background$block1 <-  sample(1:6, size=nrow(background), replace = T)
+  background$block2 <-  sample(1:6, size=nrow(background), replace = T)
+  background$x<-NULL
+  background$y<-NULL
+  
+  
   sf::write_sf(bg, "data/bg.gpkg")
 } else {
   bg=sf::read_sf("data/bg.gpkg")}
 
 vars=terra::rast("data/variables.tif")
-
 
 
 # 3 - create fold in different ways ####
@@ -113,31 +119,4 @@ mclapply(1:length(species), function(i){
     sf::write_sf(vs,paste0("data/run2/virtualSpeciesTrain/",species[i]))
   }
 },mc.cores=50)
-
-
-
-# 4 - background processing ####
-#--------------------------------------#
-
-
-
-
-
-# background processing:
-vars=terra::rast("data/variables.tif")
-
-background=sf::read_sf("data/bg.gpkg")
-extr=terra::extract(vars,background,ID=F)
-background$Real<- 0
-background$Observed<-0
-background=cbind(background,extr)
-background$random <-  sample(1:6, size=nrow(background), replace = T)
-background$KNNDM <-  sample(1:6, size=nrow(background), replace = T)
-background$clusters <-  sample(1:6, size=nrow(background), replace = T)
-background$block1 <-  sample(1:6, size=nrow(background), replace = T)
-background$block2 <-  sample(1:6, size=nrow(background), replace = T)
-background$x<-NULL
-background$y<-NULL
-
-sf::write_sf(background, "data/bg.gpkg")
 
