@@ -1,7 +1,6 @@
 data/run2/maps
 data/run2/models
 data/run2/results
-data/run2/virtualSpeciesTrain
 data/climate/wc2.1_country
 maxent.jar
 .Rhistory
