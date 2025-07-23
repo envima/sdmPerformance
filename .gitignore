@@ -1,10 +1,14 @@
 data/run2/maps
-data/run2/models
+#data/run2/models
 data/run2/results
 data/climate/wc2.1_country
 maxent.jar
 .Rhistory
 .Rproj.user
 
-# Never ignore Markdown files
+
+# Ignore contents of models, but not the directory itself
+data/run2/models/*
+
+# Do not ignore Markdown files
 !*.md
