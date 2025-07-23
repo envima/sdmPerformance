@@ -1,5 +1,4 @@
-data/run2/maps
-#data/run2/models
+
 data/run2/results
 data/climate/wc2.1_country
 maxent.jar
@@ -9,6 +8,7 @@ maxent.jar
 
 # Ignore contents of models, but not the directory itself
 data/run2/models/*
-
+data/run2/maps/*
+ 
 # Do not ignore Markdown files
 !*.md
