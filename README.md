@@ -1,5 +1,62 @@
 # Evaluation of presence-only species distribution models
 
+
+### Experimental design
+Also available [here](https://www.canva.com/design/DAGsG1V1Q9A/5xo4VLJaQVJNJ0qLQ3rU7g/edit?utm_content=DAGsG1V1Q9A&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton) for better readability / zooming functionalities.
+![](images/workflow_simplified.png)
+
+
+**Figure X.** *Comprehensive overview of the experimental workflow for simulating and evaluating species distribution models using virtual species.*
+
+
+
+## Preliminary results
+
+### Differences in model performance: (not relevant for model evaluation metrics but still interesting)
+Rank of influence on overall model performance:
+1. Model algorithm
+2. Data separation
+3. Number of sampled PA points
+
+![](images/modelPerformance/trueCor_byModelSizePoints.png)   
+**Figure X.** *Presence-absence (PA), Presence-backgorund (PBG), Presence-artificial-absence (PAA)*
+
+
+### Differences in model performance **metrics**:
+
+1. For all tested metrics (AUC, COR, Spec, Sens, Kappa, PCC, TSS, PRG, MAE, BIAS) evaluation on background points resulted in lower R² than evalaution on PA data. See for example AUC below:
+
+1. for nearly all metrics evalaution on Presence-artificial-absence (PAA) data had a higher R² than on PBG. See below.
+     ![](images/resultPlots/AUC_byMethod.png)   
+     **Figure X.** *Presence-absence (PA), Presence-backgorund (PBG), Presence-artificial-absence (PAA)*
+1. A combination of some already established evaluation metrics could provide a higher R² than any single metric.
+![](images/resultPlots/metric_byMethod.png)   
+**Figure X.** *Presence-absence (PA), Presence-backgorund (PBG), Presence-artificial-absence (PAA)*
+
+### Conclusions:
+
+1. Presence-artificial-absence (PAA) data is better suited to evaluate presence-only SDMs then presence-background (PBG) data.
+2. A metric from several already established evaluation metrics gives more insight into actual mode performance than any single metric.
+3. Date separation has a hugh influence.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--
+# DEPRECATED
+
 some further thoughts on this [here](https://docs.google.com/document/d/1w_g_zHOl-no0fK0e-9W92zZXBLmHuiEP_RfSP0wT39E/edit?usp=sharing). 
 
 **Hypothesis 1:**
@@ -22,12 +79,6 @@ some further thoughts on this [here](https://docs.google.com/document/d/1w_g_zHO
 
 
 
-### Experimental design
-Also available [here](https://www.canva.com/design/DAGsG1V1Q9A/5xo4VLJaQVJNJ0qLQ3rU7g/edit?utm_content=DAGsG1V1Q9A&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton) for better readability / zooming functionalities.
-![](images/workflow_simplified.png)
-
-
-**Figure X.** *Comprehensive overview of the experimental workflow for simulating and evaluating species distribution models using virtual species.*
 
 **Phase 1: Species Simulation** involves selecting environmental predictor variables from a predefined bioclimatic set and generating virtual species distributions using the methodology of Grimm et al. (2020). This includes converting continuous habitat suitability predictions into binary presence–absence rasters. A total of 10 virtual species (VS01–VS10) were simulated as distinct ecological niches.
 
@@ -69,3 +120,5 @@ Image in the middle: Shows AUC calculated on Presence-Only and background data. 
 
 Image on the right: Shows a metric (not the AUC!) calculated from severals performance metrics to average out the uncertainities of single metrics. Presnece-Only data are used togehter with artificial absence data.
 ![](images/summary2.png)
+
+-->
