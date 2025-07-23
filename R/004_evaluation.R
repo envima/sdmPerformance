@@ -20,7 +20,7 @@ library(FNN)
 library(parallel)
 
 if (Sys.info()[[4]]=="PC19674") {
-  setwd("M:/user/bald/SDM/sdmPerformanceCaseStudy/")
+  setwd("M:/user/bald/SDM/sdmPerformance/")
   nCores=1
 } else if (Sys.info()[[4]]=="pc19543") {
   nCores=60
@@ -44,11 +44,11 @@ nameRun <- paste0("run", 2)
 # 4 - evaluate models ####
 #------------------------#
 
-vars_path=normalizePath("../sdmPerformance/data/variables.tif")
+vars_path=normalizePath("data/variables.tif")
 
 
 source("R/functions/correlationFunctions.R")
-source("../sdmPerformance/R/functions/performanceStabilityIndexReplicates.R")
+source("R/functions/performanceStabilityIndexReplicates.R")
 
 # Pre-filter already processed files
 #df <- df[!file.exists(paste0("data/",nameRun,"/results/",
@@ -128,6 +128,7 @@ if(!file.exists("data/run2/results.RDS")){
   data=list.files("data/run2/results",full.names = T)
   data=mclapply(data, function(x){
     df=readRDS(x)
+    df$species <- strsplit(strsplit(x, split="/")[[1]][4],split="_")[[1]][1]
     return(df)
   },mc.cores=nCores)
   

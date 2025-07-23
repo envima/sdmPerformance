@@ -5,3 +5,6 @@ data/climate/wc2.1_country
 maxent.jar
 .Rhistory
 .Rproj.user
+
+# Never ignore Markdown files
+!*.md
