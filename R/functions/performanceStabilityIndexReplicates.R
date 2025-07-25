@@ -193,18 +193,38 @@ stabilityRasters <- function(r) {
   mean(valid_corrs)
 }
 
+
+
 #indexCalculation <- function(inputDF, stability) {
 #  COR <- if (length(unique(inputDF$predicted)) > 1) cor(inputDF$observed, inputDF$predicted) else NA
-#  if (COR < 0) COR<-0
+#  if (is.na(COR)) {
+#    COR <- NA
+#  } else if (COR < 0) {
+#    COR <- 0
+#  }
 #  AUC <- Metrics::auc(inputDF$observed, inputDF$predicted)
 #  PRG <- prg::calc_auprg(prg::create_prg_curve(inputDF$observed, inputDF$predicted))
 #  MAE <- Metrics::mae(inputDF$observed, inputDF$predicted)
 #  BIAS <-  abs(Metrics::bias(inputDF$observed, inputDF$predicted))
-# metric= mean(c(COR,stability,AUC,1-MAE,1-BIAS))
-# all metrics in one df
-# result=data.frame(metric=metric, AUC=AUC, COR=COR,stability=stability, PRG=PRG, MAE=MAE, BIAS=BIAS, noPresencePoints=nrow(inputDF[inputDF$observed ==1,]))
+#  evalDat=mecofun::evalSDM(inputDF$observed, inputDF$predicted)
+#  TSS=evalDat$TSS
+#  Kappa=evalDat$Kappa
+#  PCC=evalDat$PCC
+#  Sens=evalDat$Sens
+#  Spec=evalDat$Spec
+#  
+#  if(is.na(stability)){
+#    metric= mean(c(COR,AUC,1-MAE,1-BIAS), na.rm=T)
+#  } else {
+#    metric= mean(c(COR,stability,AUC,1-MAE,1-BIAS),na.rm=T)
+#  }
+#  
+#  # all metrics in one df
+#  result=data.frame(metric=metric, AUC=AUC, COR=COR, Spec,Sens,Kappa,PCC, TSS,stability=stability, PRG=PRG, MAE=MAE, BIAS=BIAS, noPresencePoints=nrow(inputDF[inputDF$observed ==1,]))
 #  return(result)
 #}
+
+
 
 indexCalculation <- function(inputDF, stability) {
   COR <- if (length(unique(inputDF$predicted)) > 1) cor(inputDF$observed, inputDF$predicted) else NA
@@ -225,9 +245,9 @@ indexCalculation <- function(inputDF, stability) {
   Spec=evalDat$Spec
   
   if(is.na(stability)){
-    metric= mean(c(COR,AUC,1-MAE,1-BIAS), na.rm=T)
+    metric= mean(c(Spec, COR,PCC,1-MAE), na.rm=T)
   } else {
-    metric= mean(c(COR,stability,AUC,1-MAE,1-BIAS),na.rm=T)
+    metric= mean(c(Spec, COR,PCC,1-MAE,stability),na.rm=T)
   }
   
   # all metrics in one df

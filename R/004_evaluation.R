@@ -80,7 +80,7 @@ mclapply(1:nrow(df), function(i){
     moranTrain<- moran(train)
     moranTest<- moran(test)
     
-    realDistirbution=terra::rast(paste0("../sdmPerformance/data/virtualSpecies/",as.character(df$species[i]),".tif"))
+    realDistirbution=terra::rast(paste0("data/virtualSpecies/",as.character(df$species[i]),".tif"))
     pred=terra::rast(paste0("data/",nameRun,"/maps/",as.character(df$species[i]),"_",as.character(df$size[i]),"_",as.character(df$model[i]),"_testData",df$testData[i],"_points",as.character(df$points[i]),"_replicates",df$replicates[i],".tif"))
     if(isTRUE(terra::global(pred, fun = function(x) all(is.na(x)))[[1]])) return(NULL)
     pred=terra::mask(pred,realDistirbution)
