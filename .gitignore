@@ -1,5 +1,6 @@
 data/run2/results
 data/climate/wc2.1_country
+data/run2/resultsAggregated
 maxent.jar
 .Rhistory
 .Rproj.user

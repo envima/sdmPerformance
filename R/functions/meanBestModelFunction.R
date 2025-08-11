@@ -58,7 +58,7 @@ meanBestModelFunction <- function(s, # species name
     
     
     
-    index=mean(c(bestModelMean$SpecMean, bestModelMean$CORMean, bestModelMean$PCCMean,1-  bestModelMean$MAEMean,bestModelMean$stability),na.rm=T)
+    index=mean(c(mean(c(bestModelMean$SpecMean, bestModelMean$CORMean, bestModelMean$PCCMean,1-  bestModelMean$MAEMean),na.rm=T),bestModelMean$stability),na.rm=T)
     bestModelMean$metricMean<- index
     
     
