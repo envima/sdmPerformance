@@ -8,6 +8,9 @@ Also available [here](https://www.canva.com/design/DAGsG1V1Q9A/5xo4VLJaQVJNJ0qLQ
 
 **Figure X.** *Comprehensive overview of the experimental workflow for simulating and evaluating species distribution models using virtual species.*
 
+### Evaluation workflow
+Also available [here](https://www.canva.com/design/DAGvwVhqnH0/g95a-xScVbVwnCuuYYuTTA/edit?utm_content=DAGvwVhqnH0&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton) for better readability / zooming functionalities.
+![](images/evaluation_workflow.png)
 
 
 ## Preliminary results
