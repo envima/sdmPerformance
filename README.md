@@ -13,6 +13,34 @@ Also available [here](https://www.canva.com/design/DAGvwVhqnH0/g95a-xScVbVwnCuuY
 ![](images/evaluation_workflow.png)
 
 
+### Rescaling metrics
+Feature scaling (Min-Max-Normalisierung):
+
+![https://wikimedia.org/api/rest_v1/media/math/render/svg/358923abc154221bb5022fc329061f6fc4dcc69f](https://wikimedia.org/api/rest_v1/media/math/render/svg/358923abc154221bb5022fc329061f6fc4dcc69f)
+
+- x is an original value
+- x' is the normalized value
+- min(x) lower bound of target range (for AUC 0.5)
+- max(x) upper bound of target range (for AUC 1)
+
+| Metric | Baseline | Min   | Max  | Higher Better? |
+|--------|----------|-------|------|----------------|
+| AUC    | 0.5      | 0     | 1    | Yes            |
+| COR    | -        | -1    | 1    | Yes            |
+| Spec   | -        | 0     | 1    | Yes            |
+| Sens   | -        | 0     | 1    | Yes            |
+| Kappa  | -        | -1    | 1    | Yes            |
+| PCC    | -        | 0     | 1    | Yes            |
+| TSS    | 0        | -1    | 1    | Yes            |
+| PRG    | 0.5      | 0     | 1    | Yes            |
+| MAE    | -        | 0     | 1    | No             |
+| BIAS   | -        | -1    | 1    | No             |
+
+
+<img src="images/evaluation_metric_explained.png" alt="Evaluation Metric Explained" width="500">
+
+
+
 ## Preliminary results
 
 ### Differences in model performance: (not relevant for model evaluation metrics but still interesting)
