@@ -22,9 +22,12 @@ if (Sys.info()[[4]]=="PC19674") {
 }
 
 
+
 # create a unique name for different runs
 nameRun <- paste0("run", 2)
 
+
+source(paste0("R/",nameRun,"/functions/scale_metric.R"))
 
 # 2 - load data ####
 #------------------#
@@ -35,13 +38,13 @@ data$points <-factor(data$points, levels = c(40, 80, 120, 160, 200, 400))
 
 
 # set all trueCor values smaller 0 to 0:
-data <- data %>% filter(is.finite(metric))%>%
-  mutate(trueCor = ifelse(trueCor < 0, 0, trueCor))
+#data <- data %>% filter(is.finite(metric))%>%
+#  mutate(trueCor = ifelse(trueCor < 0, 0, trueCor))
 
 
 # List of metrics to scale
 metric_names <- c("AUC", "COR", "Spec", "Sens", "Kappa", 
-                  "PCC", "TSS", "PRG", "MAE", "BIAS")
+                  "PCC", "TSS", "PRG", "MAE", "trueCor")
 
 # Apply scaling function to each metric and create new "_scaled" columns
 data <- data %>%
@@ -58,13 +61,13 @@ data=data %>%
   )
 
 
-if(!dir.exists("images/resultPlots")) dir.create("images/resultPlots")
+if(!dir.exists(paste0("images/",nameRun,"/resultPlots"))) dir.create(paste0("images/",nameRun,"/resultPlots"), recursive=T)
 
 # 3 - plot by method ####
 #-----------------------#
 
 metric_names <- c( "metric_scaled","AUC_scaled", "COR_scaled", "Spec_scaled", "Sens_scaled", "Kappa_scaled", 
-                   "PCC_scaled", "TSS_scaled", "PRG_scaled", "MAE_scaled", "BIAS_scaled")
+                   "PCC_scaled", "TSS_scaled", "PRG_scaled", "MAE_scaled")
 
 plot_list <- list()
 
@@ -107,7 +110,7 @@ for (m in metric_names) {
   
   
   
-  ggsave(p, filename = paste0("images/resultPlots12082025/", m, "_byMethod_colorPoints.png"), dpi = 300, width = 16, height = 8)
+  ggsave(p, filename = paste0("images/",nameRun,"/resultPlots2/", m, "_byMethod_colorPoints.png"), dpi = 300, width = 16, height = 8)
   plot_list[[m]] <- p
   
   rm(p, metrics_df)
@@ -341,50 +344,4 @@ for(i in c("size", "model", "points")){
   ggsave(p, filename = paste0("images/PAA/metric_PAA_by",i,".png"), dpi = 300, width = 16, height = 8)
   
 }
-
-
-scale_metric <- function(value, metric) {
-  
-  # Definiere Baseline, Minimum, Maximum und Richtung pro Metrik
-  params <- list(
-    AUC   = list(baseline = 0.5, min = 0.5, max = 1, higher_better = TRUE),
-    COR   = list(min = -1, max = 1, higher_better = TRUE),
-    Spec  = list(min = 0, max = 1, higher_better = TRUE),
-    Sens  = list(min = 0, max = 1, higher_better = TRUE),
-    Kappa = list(min = -1, max = 1, higher_better = TRUE),
-    PCC   = list(min = 0, max = 1, higher_better = TRUE),
-    TSS   = list(baseline=0,min = -1, max = 1, higher_better = TRUE),
-    PRG   = list(baseline=0.5,min = 0, max = 1, higher_better = TRUE),
-    MAE   = list(min = 0, max = 1, higher_better = FALSE),
-    BIAS  = list(min = -1, max = 1, higher_better = FALSE)
-  )
-  
-  # Parameter für aktuelle Metrik holen
-  if (!metric %in% names(params)) {
-    stop("Metrik nicht in der Parameterliste enthalten.")
-  }
-  p <- params[[metric]]
-  
-  # Falls eine Baseline definiert ist (z.B. AUC), verwende diese als min
-  if (!is.null(p$baseline)) {
-    min_val <- p$baseline
-  } else {
-    min_val <- p$min
-  }
-  max_val <- p$max
-  
-  # Skalierung berechnen
-  scaled <- (value - min_val) / (max_val - min_val)
-  
-  # Falls niedriger besser ist, invertieren
-  if (!p$higher_better) {
-    scaled <- 1 - scaled
-  }
-  
-  # Werte auf 0-1 begrenzen
-  scaled <- pmax(0, pmin(1, scaled))
-  
-  return(scaled)
-}
-
 
