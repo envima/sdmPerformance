@@ -36,6 +36,10 @@ Feature scaling (Min-Max-Normalisierung):
 | MAE    | -        | 0     | 1    | No             |
 | BIAS   | -        | -1    | 1    | No             |
 
+#### Assessment on how good the evaluation metrics are:
+
+We plot the results of the evaluation metrics against the Pearson correlation between the suitability raster and the prediction map of virtual species.  
+If the model (points) are plotted on the diagonal, then the metric is performing well.
 
 <img src="images/evaluation_metric_explained.png" alt="Evaluation Metric Explained" width="500">
 
