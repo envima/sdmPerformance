@@ -46,6 +46,67 @@ If the model (points) are plotted on the diagonal, then the metric is performing
 
 
 ## Preliminary results
+### AUC
+![](images/run3/resultPlots/AUC_scaled_byMethod_colorpoints.png)
+### Pearson correlation
+![](images/run3/resultPlots/COR_scaled_byMethod_colorpoints.png)
+### Kappa
+![](images/run3/resultPlots/Kappa_scaled_byMethod_colorpoints.png)
+### PCC
+![](images/run3/resultPlots/PCC_scaled_byMethod_colorpoints.png)
+### TSS
+![](images/run3/resultPlots/TSS_scaled_byMethod_colorpoints.png)
+### AUC PRG
+![](images/run3/resultPlots/PRG_scaled_byMethod_colorpoints.png)
+### Sensitivity
+![](images/run3/resultPlots/Sens_scaled_byMethod_colorpoints.png)
+### Specificity
+![](images/run3/resultPlots/Spec_scaled_byMethod_colorpoints.png)
+
+## Preliminary results - Models
+### AUC - Models
+![](images/run3/resultPlots/AUC_scaled_byMethod_colormodel.png)
+### Pearson correlation
+![](images/run3/resultPlots/COR_scaled_byMethod_colormodel.png)
+### Kappa - Models
+![](images/run3/resultPlots/Kappa_scaled_byMethod_colormodel.png)
+### PCC - Models
+![](images/run3/resultPlots/PCC_scaled_byMethod_colormodel.png)
+### TSS - Models
+![](images/run3/resultPlots/TSS_scaled_byMethod_colormodel.png)
+### AUC PRG - Models
+![](images/run3/resultPlots/PRG_scaled_byMethod_colormodel.png)
+### Sensitivity - Models
+![](images/run3/resultPlots/Sens_scaled_byMethod_colormodel.png)
+### Specificity - Models
+![](images/run3/resultPlots/Spec_scaled_byMethod_colormodel.png)
+
+## Preliminary results - Spatial separation strategy
+### AUC - Spatial separation strategy
+![](images/run3/resultPlots/AUC_scaled_byMethod_colorsize.png)
+### Pearson correlation
+![](images/run3/resultPlots/COR_scaled_byMethod_colorsize.png)
+### Kappa - Spatial separation strategy
+![](images/run3/resultPlots/Kappa_scaled_byMethod_colorsize.png)
+### PCC - Spatial separation strategy
+![](images/run3/resultPlots/PCC_scaled_byMethod_colorsize.png)
+### TSS - Spatial separation strategy
+![](images/run3/resultPlots/TSS_scaled_byMethod_colorsize.png)
+### AUC PRG - Spatial separation strategy
+![](images/run3/resultPlots/PRG_scaled_byMethod_colorsize.png)
+### Sensitivity - Spatial separation strategy
+![](images/run3/resultPlots/Sens_scaled_byMethod_colorsize.png)
+### Specificity - Spatial separation strategy
+![](images/run3/resultPlots/Spec_scaled_byMethod_colorsize.png)
+
+
+
+
+
+
+
+
+<!--
 
 ### Differences in model performance: (not relevant for model evaluation metrics but still interesting)
 Rank of influence on overall model performance:
@@ -79,17 +140,6 @@ Rank of influence on overall model performance:
 
 
 
-
-
-
-
-
-
-
-
-
-
-<!--
 # DEPRECATED
 
 some further thoughts on this [here](https://docs.google.com/document/d/1w_g_zHOl-no0fK0e-9W92zZXBLmHuiEP_RfSP0wT39E/edit?usp=sharing). 
