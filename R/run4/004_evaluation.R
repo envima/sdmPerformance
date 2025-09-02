@@ -27,7 +27,7 @@ if (Sys.info()[[4]]=="PC19674") {
   setwd("M:/user/bald/SDM/sdmPerformance/")
   nCores=1
 } else if (Sys.info()[[4]]=="pc19543") {
-  nCores=60
+  nCores=40
 }
 
 df=expand.grid(size=as.character(c("KNNDM","random","block1","block2","clusters")) ,
@@ -35,11 +35,11 @@ df=expand.grid(size=as.character(c("KNNDM","random","block1","block2","clusters"
                points=unique(sapply(strsplit(gsub(".gpkg", "", list.files("data/run2/virtualSpeciesTrain", full.names = FALSE,pattern=".gpkg")), "_"), `[`, 2)),
                replicates=1:5,
                # model=as.character(c("RF")),
-               model=as.character(c("Lasso")),
+               model=as.character(c("NA")),
                testData = 1:6)
 
-set.seed(123)  # optional, for reproducibility
-df <- df[sample(nrow(df)), ]
+#set.seed(123)  # optional, for reproducibility
+#df <- df[sample(nrow(df)), ]
 
 
 # create a unique name for different runs
@@ -58,9 +58,7 @@ RandomFields::RFoptions(seed = NULL)
 
 vars_path=normalizePath("data/variables.tif")
 
-source(paste0("R/",nameRun,"/functions/nlm_gaussianfield.R"))
-source(paste0("R/",nameRun,"/functions/RFsimulate_custom.R"))
-source(paste0("R/",nameRun,"/functions/correlationFunctions.R"))
+
 source(paste0("R/",nameRun,"/functions/performanceStabilityIndexReplicates.R"))
 
 # Pre-filter already processed files
@@ -72,7 +70,7 @@ source(paste0("R/",nameRun,"/functions/performanceStabilityIndexReplicates.R"))
 
 
 
-mclapply(1:100, function(i){
+mclapply(1:nrow(df), function(i){
   
   print(i)
   if(!file.exists(paste0("data/",nameRun,"/results/",as.character(df$species[i]),"_",as.character(df$size[i]),"_",as.character(df$model[i]),"_testData",df$testData[i],"_points",as.character(df$points[i]),"_replicates",df$replicates[i],".RDS"))){
@@ -83,30 +81,35 @@ mclapply(1:100, function(i){
     test <- vs %>%
       dplyr::filter(.data[[as.character(df$size[i])]] == df$testData[i])
     
-    if(nrow(test%>%dplyr::filter(Real==1))<1) return(NULL)
+    if(nrow(test%>%dplyr::filter(Real==1))<5) return(NULL)
     
     
     realDistribution=terra::rast(paste0("data/virtualSpecies/",as.character(df$species[i]),".tif"))
     
-    
-    #  random values between 0 and 1
-    autocorrRange=sample(c(20,50,100,500,800),size=1)
-    randomField=nlm_gaussianfield(nrow=1777, ncol=2247, resolution=813.3488,
-                                        autocorr_range = autocorrRange)
-    
-  
-    randomField=terra::rast(randomField)
-    terra::ext(randomField) <- terra::ext(realDistribution)
-    terra::crs(randomField)<- terra::crs(realDistribution)
-    randomField=terra::mask(randomField, realDistribution)
-    #terra::plot(randomField)
-    
-    # Weighted
-    randomEffects <- sample(seq(0,1,0.05), size=1)
-    pred <- (randomEffects * realDistribution) + ((1-randomEffects) * randomField)
-    pred=climateStability::rescale0to1(pred)
+    if(!file.exists(paste0("data/",nameRun,"/maps/",as.character(df$species[i]),"_",df$size[i],"_",df$model[i],"_testData",df$testData[i],"_points",as.character(df$points[i]),"_replicates",df$replicates[i],".tif"))){
+      if(!dir.exists(paste0("data/",nameRun,"/maps"))) dir.create(paste0("data/",nameRun,"/maps"))
+      #  random values between 0 and 1
+      autocorrRange=sample(c(20,50,100,500,800),size=1)
+      randomField=nlm_gaussianfield(nrow=1777, ncol=2247, resolution=813.3488,
+                                    autocorr_range = autocorrRange)
+      
+      
+      randomField=terra::rast(randomField)
+      terra::ext(randomField) <- terra::ext(realDistribution)
+      terra::crs(randomField)<- terra::crs(realDistribution)
+      randomField=terra::mask(randomField, realDistribution)
+      #terra::plot(randomField)
+      
+      # Weighted
+      randomEffects <- sample(seq(0,1,0.05), size=1)
+      pred <- (randomEffects * realDistribution) + ((1-randomEffects) * randomField)
+      pred=climateStability::rescale0to1(pred)
+      terra::writeRaster(pred, paste0("data/",nameRun,"/maps/",as.character(df$species[i]),"_",df$size[i],"_",df$model[i],"_testData",df$testData[i],"_points",as.character(df$points[i]),"_replicates",df$replicates[i],".tif"))
+    } else pred=terra::rast(paste0("data/",nameRun,"/maps/",as.character(df$species[i]),"_",df$size[i],"_",df$model[i],"_testData",df$testData[i],"_points",as.character(df$points[i]),"_replicates",df$replicates[i],".tif"))
     
     if(isTRUE(terra::global(pred, fun = function(x) all(is.na(x)))[[1]])) return(NULL)
+    
+    
     
     result=performanceStabilityIndex( x = NA,
                                       prediction=pred,
@@ -116,7 +119,7 @@ mclapply(1:100, function(i){
                                       aa = TRUE,
                                       environmentalVariables = vars,
                                       noPointsTesting = NA,
-                                      replicates=100)
+                                      replicates=20)
     
     result$trueCor <- terra::layerCor(terra::rast(list(pred,realDistribution)),fun="cor")$correlation[[1,2]]
     result$model <- as.character(df$model[i])
@@ -129,8 +132,8 @@ mclapply(1:100, function(i){
     result$replicate <- as.character(df$replicates[i])
     result$points <- as.character(df$points[i])
     result$species <- as.character(df$species[i])
-    result$randomEffects <- randomEffects
-    result$autocorrRange <- autocorrRange
+    #result$randomEffects <- randomEffects
+    #result$autocorrRange <- autocorrRange
     
     rm(pred,realDistribution,test,vs, autocorrRange, randomEffects);gc()
     if(!dir.exists(paste0("data/",nameRun,"/results"))) dir.create(paste0("data/",nameRun,"/results"), recursive=T)

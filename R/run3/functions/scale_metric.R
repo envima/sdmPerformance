@@ -9,12 +9,24 @@ scale_metric <- function(value, metric) {
     Spec  = list(min = 0, max = 1, higher_better = TRUE),
     Sens  = list(min = 0, max = 1, higher_better = TRUE),
     Kappa = list(baseline=0,min = -1, max = 1, higher_better = TRUE),
-    PCC   = list(min = 0, max = 1, higher_better = TRUE),
+    TopQ = list(min = 0, max = 0.5, higher_better = TRUE),
+    PCC   = list(baseline=0.5,min = 0, max = 1, higher_better = TRUE),
     TSS   = list(baseline=0,min = -1, max = 1, higher_better = TRUE),
     PRG   = list(baseline=0.5,min = 0, max = 1, higher_better = TRUE),
-    MAE   = list(min = 0, max = 1, higher_better = FALSE)
+    MAE   = list(min = 0, max = 1, higher_better = FALSE),
+    brierScore=list(baseline=0.25,min = 0, max = 1, higher_better = FALSE),
+    BS=list(min = 0, max = 1, higher_better = T),
+    MCC=list(baseline=0,min = -1, max = 1, higher_better = TRUE),
+    FM=list(min = 0, max = 1, higher_better = TRUE),
+    SBI_m=list(min = -1, max = 1, higher_better = TRUE),
     
+    SEDI=list(baseline=0,min = -1, max = 1, higher_better = TRUE),
+    ORSS=list(baseline=0,min = -1, max = 1, higher_better = TRUE)
   )
+  
+  
+      
+  
   
   # Parameter für aktuelle Metrik holen
   if (!metric %in% names(params)) {
