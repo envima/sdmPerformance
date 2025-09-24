@@ -84,7 +84,7 @@ mclapply(1:nrow(df), function(i){
       dplyr::filter(.data[[as.character(df$size[i])]] == df$testData[i])
     
     # Abort if fewer than 5 presence points available
-    if(nrow(test%>%dplyr::filter(Real==1))<5) return(NULL)
+    if(nrow(test%>%dplyr::filter(Real==1))<2) return(NULL)
     
     # Load true species distribution raster
     realDistribution=terra::rast(paste0("data/virtualSpecies/",as.character(df$species[i]),".tif"))
