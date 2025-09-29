@@ -1,0 +1,9 @@
+"","metric","twoSided","greater","lesser"
+"1","AUC_scaled",0,1,0
+"2","COR_scaled",0,1,0
+"3","PRG_scaled",0,1,0
+"4","Spec_scaled",0,1,0
+"5","Sens_scaled",0,1,0
+"6","TSS_scaled",0,1,0
+"7","Kappa_scaled",0,1,0
+"8","PCC_scaled",0,1,0

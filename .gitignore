@@ -1,3 +1,4 @@
+data/virtualSpecies/
 data/run2/results
 data/run3/results
 data/run4/results
@@ -9,6 +10,8 @@ data/run5/results
 data/run6/results
 data/run7/results
 data/run8/results
+data/run9/results
+images/*.tif
 data/climate/wc2.1_country
 data/run2/resultsAggregated
 maxent.jar
