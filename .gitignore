@@ -1,4 +1,15 @@
 data/virtualSpecies/
+images/*.tif
+data/climate/wc2.1_country
+maxent.jar
+.Rhistory
+.Rproj.user
+
+
+# Ignore contents of models, but not the directory itself
+data/run2/models/*
+data/run2/resultsAggregated
+data/run2/maps/*
 data/run2/results
 data/run3/results
 data/run4/results
@@ -11,17 +22,7 @@ data/run6/results
 data/run7/results
 data/run8/results
 data/run9/results
-images/*.tif
-data/climate/wc2.1_country
-data/run2/resultsAggregated
-maxent.jar
-.Rhistory
-.Rproj.user
-
-
-# Ignore contents of models, but not the directory itself
-data/run2/models/*
-data/run2/maps/*
+data/run10/results
  
 # Do not ignore Markdown files
 !*.md

@@ -14,7 +14,7 @@
 generateAAPoints <- function(aa_mask, nPoints) {
   # Sample points from the precomputed AOA mask
   aa_df <- suppressMessages(
-    as.data.frame(predicts::backgroundSample(aa_mask, n = nPoints * 10, tryf = 30))
+    as.data.frame(predicts::backgroundSample(aa_mask, n = nPoints * 10, tryf = 300))
   )
   
   if (nrow(aa_df) > nPoints) aa_df <- aa_df %>% dplyr::slice_sample(n = nPoints)

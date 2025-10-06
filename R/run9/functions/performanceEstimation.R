@@ -122,7 +122,7 @@ performanceEstimation <- function(
     aa_mask <- aoa_result$AOA
     aa_mask[aa_mask > 0] <- NA
     
-    aa_df <- suppressMessages(as.data.frame(predicts::backgroundSample(aa_mask, n = noPointsTesting * 10, tryf = 30)))
+    aa_df <- suppressMessages(as.data.frame(predicts::backgroundSample(aa_mask, n = noPointsTesting * 10, tryf = 60)))
     if(nrow(aa_df) > noPointsTesting) aa_df <- aa_df %>% dplyr::slice_sample(n = noPointsTesting)
     aa <- sf::st_as_sf(aa_df, coords = c("x","y"), crs = terra::crs(aa_mask), remove = FALSE)
     
