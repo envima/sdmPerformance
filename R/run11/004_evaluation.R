@@ -131,7 +131,7 @@ mclapply(1:nrow(df), function(i){
                                   background = TRUE,
                                   aa = TRUE,
                                   environmentalVariables = vars,
-                                  noPointsTesting = nrow(test%>%dplyr::filter(Real==1))*1000,
+                                  noPointsTesting = nrow(test%>%dplyr::filter(Real==1))*100,
                                   replicates=20)
     
     # Add correlation with true distribution

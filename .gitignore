@@ -22,7 +22,11 @@ data/run6/results
 data/run7/results
 data/run8/results
 data/run9/results
-data/run10/results
+data/run10
+data/run11
+data/run12/maps
+data/run12/results
+
  
 # Do not ignore Markdown files
 !*.md

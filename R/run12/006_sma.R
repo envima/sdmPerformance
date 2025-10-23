@@ -25,7 +25,7 @@ if (Sys.info()[[4]]=="PC19674") {
 }
 
 # create a unique name for different runs
-nameRun <- paste0("run", 10)
+nameRun <- paste0("run", 12)
 
 source(paste0("R/",nameRun,"/functions/scale_metric.R"))
 
@@ -86,6 +86,7 @@ for (m in metric_names) {
     
     data2=data%>%dplyr::filter(method == method_plot)
     
+    
     # SMA-Regression
     fit <- smatr::sma(paste("trueCor_scaled ~", m),data=data2, method="SMA", slope.test=1, elev.test=0)
     
@@ -93,8 +94,8 @@ for (m in metric_names) {
     #summary(fit)
     
     
-    #plot(fit, which="residual" )
-    #plot(fit, which="qq")
+    plot(fit, which="residual" )
+    plot(fit, which="qq")
     
     intercept_rma <- coef(fit)[1][[1]]
     slope_rma <- coef(fit)[2][[1]]
@@ -216,7 +217,7 @@ p2=egg::ggarrange(plots=all_plots[13:24],nrow=4,ncol=3, left=textGrob(
   rot = 90))
 ggsave(p2, filename = paste0("images/",nameRun,"/resultPlotsSummarized/plot2_byMethod.png"), dpi = 300, width = 16, height = 20)
 
-rm(p1,p2,labels, slope_sig, rsquared_sig, intercept_sig,method_plot,label_text,all_plots,m)
+rm(p1,p2, slope_sig, rsquared_sig, intercept_sig,method_plot,label_text,all_plots,m)
 
 dataSummary <- do.call(rbind, all_results)
 saveRDS(dataSummary, paste0("images/",nameRun,"/resultPlotsSummarized/results.RDS"));rm(dataSummary,all_results)
@@ -326,7 +327,7 @@ for (m in metric_names) {
       
       assign(paste0("plot_",method_plot,prevalence_plot), p)
       
-           fit_summary$rmsd <- metrics_df$rmsd
+      fit_summary$rmsd <- metrics_df$rmsd
       fit_summary$rmse <- metrics_df$rmse_rma
       fit_summary$intercept <- metrics_df$intercept_rma
       fit_summary$metric <- m
@@ -343,7 +344,7 @@ for (m in metric_names) {
   plots=list(plot_PABroad, plot_PBGBroad, plot_PAABroad,
              plot_PAMiddle, plot_PBGMiddle, plot_PAAMiddle,
              plot_PANarrow, plot_PBGNarrow, plot_PAANarrow)
-
+  
   p=egg::ggarrange(plots=plots,ncol=3,nrow=3, left=textGrob(
     "Pearson correlation between suitability raster and artificial distribution map",
     gp = gpar(fontsize = 24),
@@ -354,7 +355,7 @@ for (m in metric_names) {
      plot_PANarrow, plot_PBGNarrow, plot_PAANarrow,plots,p)
 }
 
-rm(all_plots, data, prev, labels)
+
 dataSummary <- do.call(rbind, all_results)
 saveRDS(dataSummary, paste0("images/",nameRun,"/resultPlotsPrevalence/resultsPrevalence.RDS"));rm(dataSummary,all_results)
 
@@ -488,7 +489,7 @@ for (m in metric_names) {
   ggsave(p1, filename = paste0("images/",nameRun,"/resultPlotsPoint/", m, "_byMethodPoint1.png"), dpi = 300, width = 16, height = 20)
   
   p2=egg::ggarrange(plots=plots[13:18],ncol=3,nrow=2, left=textGrob(
-    "Pearson correlation between suitability raster /nand artificial distribution map",
+    "Pearson correlation between suitability \nraster and artificial distribution map",
     gp = gpar(fontsize = 24),
     rot = 90))
   ggsave(p2, filename = paste0("images/",nameRun,"/resultPlotsPoint/", m, "_byMethodPoint2.png"), dpi = 300, width = 16, height = 10)

@@ -57,12 +57,13 @@ df=expand.grid(size=as.character(c("KNNDM","random","block1","block2","clusters"
                                                              full.names = FALSE,pattern=".gpkg")), "_"), `[`, 2)), # number of originally sampled points points
                replicates=1:5, # replicate runs
                model=as.character(c("NA")), # placeholder (no models trained here)
-               testData = 1:6) # test dataset identifiers
+               testData = 1:6            ) # test dataset identifiers
 
 # # Unique identifier for this specific configuration (called: run)
 nameRun <- paste0("run", 9)
 
-
+df$goodnessOfFit <- sample(seq(0,1,0.01),nrow(df), replace=T)
+plot(table(df$goodnessOfFit))
 # ================================================================
 # 5. Model evaluation
 # ================================================================
@@ -94,8 +95,8 @@ mclapply(1:nrow(df), function(i){
     # ================================================================
     
     # create gaussian random fields and merge with the real distribution
-    if(!file.exists(paste0("data/run4/maps/",as.character(df$species[i]),"_",df$size[i],"_",df$model[i],"_testData",df$testData[i],"_points",as.character(df$points[i]),"_replicates",df$replicates[i],".tif"))){
-      if(!dir.exists(paste0("data/run4/maps"))) dir.create(paste0("data/run4/maps"))
+    if(!file.exists(paste0("data/run9/maps/",as.character(df$species[i]),"_",df$size[i],"_",df$model[i],"_testData",df$testData[i],"_points",as.character(df$points[i]),"_replicates",df$replicates[i],".tif"))){
+      if(!dir.exists(paste0("data/run9/maps"))) dir.create(paste0("data/run9/maps"))
       
       # Simulate Gaussian random field (spatial autocorrelation range sampled randomly)
       autocorrRange=sample(c(20,50,100,500,800),size=1)
@@ -109,12 +110,51 @@ mclapply(1:nrow(df), function(i){
       randomField=terra::mask(randomField, realDistribution)
       #terra::plot(randomField)
       
+      #randomField <- realDistribution
+      #randomField <-  setValues(randomField, runif(ncell(randomField), min = 0, max = 1))
+      #randomField=terra::mask(randomField, realDistribution)
+      
       # Combine random field with true distribution (weighted mixture)
-      randomEffects <- sample(seq(0,1,0.05), size=1)
-      pred <- (randomEffects * realDistribution) + ((1-randomEffects) * randomField)
+      randomEffects <-df$goodnessOfFit[i]
+      x1 <-( randomEffects * realDistribution)
+      x2 <- ((1-randomEffects) * randomField)
+      pred <- x1 + x2
+      trueCor <- terra::layerCor(terra::rast(list(pred,realDistribution)),fun="cor")$correlation[[1,2]]
+      
+      if (abs((randomEffects - trueCor) / trueCor) >= 0.05){
+        x=1
+        y=1
+        if(trueCor > randomEffects){
+          while(abs((randomEffects - trueCor) / trueCor) >= 0.05){
+            x1 <-( randomEffects * realDistribution *y)
+            x2 <- ((1-randomEffects) * randomField *x)
+            pred <- x1 + x2
+            trueCor <- terra::layerCor(terra::rast(list(pred,realDistribution)),fun="cor")$correlation[[1,2]]
+            x <- x+0.1
+            y <- y-0.1
+            print(trueCor)
+          }
+        }
+        if(trueCor < randomEffects){
+          while(abs((randomEffects - trueCor) / trueCor) >= 0.05){
+            x1 <-( randomEffects * realDistribution *y)
+            x2 <- ((1-randomEffects) * randomField *x)
+            pred <- x1 + x2
+            trueCor <- terra::layerCor(terra::rast(list(pred,realDistribution)),fun="cor")$correlation[[1,2]]
+            x <- x-0.1
+            y <- y+0.1
+            print(trueCor)
+          }
+        }
+      }
+      print(paste("Random effect is:",randomEffects,". Correlation is:", round(trueCor,2)))
+      
+      
+      
+      
       pred=climateStability::rescale0to1(pred) # normalize to [0,1]
-      terra::writeRaster(pred, paste0("data/run4/maps/",as.character(df$species[i]),"_",df$size[i],"_",df$model[i],"_testData",df$testData[i],"_points",as.character(df$points[i]),"_replicates",df$replicates[i],".tif"))
-    } else pred=terra::rast(paste0("data/run4/maps/",as.character(df$species[i]),"_",df$size[i],"_",df$model[i],"_testData",df$testData[i],"_points",as.character(df$points[i]),"_replicates",df$replicates[i],".tif"))
+      terra::writeRaster(pred, paste0("data/run9/maps/",as.character(df$species[i]),"_",df$size[i],"_",df$model[i],"_testData",df$testData[i],"_points",as.character(df$points[i]),"_replicates",df$replicates[i],".tif"))
+    } else pred=terra::rast(paste0("data/run9/maps/",as.character(df$species[i]),"_",df$size[i],"_",df$model[i],"_testData",df$testData[i],"_points",as.character(df$points[i]),"_replicates",df$replicates[i],".tif"))
     
     # Skip if prediction map contains only NA values
     if(isTRUE(terra::global(pred, fun = function(x) all(is.na(x)))[[1]])) return(NULL)
