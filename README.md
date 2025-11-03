@@ -3,7 +3,7 @@
 
 ### Experimental design
 Also available [here](https://www.canva.com/design/DAGsG1V1Q9A/5xo4VLJaQVJNJ0qLQ3rU7g/edit?utm_content=DAGsG1V1Q9A&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton) for better readability / zooming functionalities.
-![](images/workflow_simplified.png)
+![](images/Experimental_design.png)
 
 
 **Figure X.** *Comprehensive overview of the experimental workflow for simulating and evaluating species distribution models using virtual species.*
@@ -45,61 +45,18 @@ If the model (points) are plotted on the diagonal, then the metric is performing
 
 
 
-## Preliminary results
-### AUC
-![](images/run3/resultPlots/AUC_scaled_byMethod_colorpoints.png)
-### Pearson correlation
-![](images/run3/resultPlots/COR_scaled_byMethod_colorpoints.png)
-### Kappa
-![](images/run3/resultPlots/Kappa_scaled_byMethod_colorpoints.png)
-### PCC
-![](images/run3/resultPlots/PCC_scaled_byMethod_colorpoints.png)
-### TSS
-![](images/run3/resultPlots/TSS_scaled_byMethod_colorpoints.png)
-### AUC PRG
-![](images/run3/resultPlots/PRG_scaled_byMethod_colorpoints.png)
-### Sensitivity
-![](images/run3/resultPlots/Sens_scaled_byMethod_colorpoints.png)
-### Specificity
-![](images/run3/resultPlots/Spec_scaled_byMethod_colorpoints.png)
+## Results
 
-## Preliminary results - Models
-### AUC - Models
-![](images/run3/resultPlots/AUC_scaled_byMethod_colormodel.png)
-### Pearson correlation
-![](images/run3/resultPlots/COR_scaled_byMethod_colormodel.png)
-### Kappa - Models
-![](images/run3/resultPlots/Kappa_scaled_byMethod_colormodel.png)
-### PCC - Models
-![](images/run3/resultPlots/PCC_scaled_byMethod_colormodel.png)
-### TSS - Models
-![](images/run3/resultPlots/TSS_scaled_byMethod_colormodel.png)
-### AUC PRG - Models
-![](images/run3/resultPlots/PRG_scaled_byMethod_colormodel.png)
-### Sensitivity - Models
-![](images/run3/resultPlots/Sens_scaled_byMethod_colormodel.png)
-### Specificity - Models
-![](images/run3/resultPlots/Spec_scaled_byMethod_colormodel.png)
+![](images/run12/resultPlotsSummarized/plot1_byMethod.png)
 
-## Preliminary results - Spatial separation strategy
-### AUC - Spatial separation strategy
-![](images/run3/resultPlots/AUC_scaled_byMethod_colorsize.png)
-### Pearson correlation
-![](images/run3/resultPlots/COR_scaled_byMethod_colorsize.png)
-### Kappa - Spatial separation strategy
-![](images/run3/resultPlots/Kappa_scaled_byMethod_colorsize.png)
-### PCC - Spatial separation strategy
-![](images/run3/resultPlots/PCC_scaled_byMethod_colorsize.png)
-### TSS - Spatial separation strategy
-![](images/run3/resultPlots/TSS_scaled_byMethod_colorsize.png)
-### AUC PRG - Spatial separation strategy
-![](images/run3/resultPlots/PRG_scaled_byMethod_colorsize.png)
-### Sensitivity - Spatial separation strategy
-![](images/run3/resultPlots/Sens_scaled_byMethod_colorsize.png)
-### Specificity - Spatial separation strategy
-![](images/run3/resultPlots/Spec_scaled_byMethod_colorsize.png)
+Figure: AUCROC, Pearson's correlation, AUCPRG, and Specificity. In each plot, one evaluation metric with rescaled values from 0 to 1 is shown on the x-axis, and Pearson's correlation between the true probability of occurrence and the artificial distribution maps (used as the reference for actual model performance) is shown on the y-axis.The dotted pink line depicts the bisector (slope = 1, intercept = 0). Each blue point represents one evaluation metric calculated on one of the 8,335 experimental test datasets. The left column shows results from presence–absence (PA) data, the middle column from presence–background (PBG) data, and the right column from presence-artificial-absence (PAA) data. Rows correspond to different evaluation metrics.
 
 
+![](images/run12/resultPlotsSummarized/plot2_byMethod.png)
+Figure: Sensitivity, true skill statistic (TSS), Cohen’s kappa, and percent correctly classified (PCC). In each plot, one evaluation metric with rescaled values from 0 to 1 is shown on the x-axis, and Pearson's correlation between the true probability of occurrence and the artificial distribution maps (used as the reference for actual model performance) is shown on the y-axis. The dotted pink line depicts the bisector (slope = 1, intercept = 0). Each blue point represents one evaluation metric calculated on one of the 8,335 experimental test datasets. The left column shows results from presence–absence (PA) data, the middle column from presence–background (PBG) data, and the right column from presence-artificial-absence (PAA) data. Rows correspond to different evaluation metrics.
+
+![](images/run12/resultPlotsSummarized/presenceOnly_byMethod.png)
+Figure: Symmetric extremal dependence index (SEDI), Smoothed boyce index mean, and omission rate. In each plot, one evaluation metric with rescaled values from 0 to 1 is shown on the x-axis, and Pearson's correlation between the true probability of occurrence and the artificial distribution maps (used as the reference for actual model performance) is shown on the y-axis. SEDI and omission rate are shown on an inversed scale. The dotted pink line depicts the bisector (slope = 1, intercept = 0). Each blue point represents one evaluation metric calculated on one of the 8,335 experimental test datasets.
 
 
 
