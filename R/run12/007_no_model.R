@@ -86,55 +86,18 @@ for (m in metric_names) {
   for(method_plot in c("PAA", "PA", "PBG")){
     
     data2=data%>%dplyr::filter(method == method_plot)
-    #PBequi <- mcreg(data2[["trueCor_scaled"]],data2[[m]], 
-    #                method.reg = "PBequi", 
-    #                slope.measure="radian", 
-    #                method.ci="analytical",
-    #                methodlarge=T)
-    #PBequi@para
-    
-    
-    #mcr::calcCUSUM(PBequi)
-    
-    #summary(PBequi)
-    #intercept <- coef(PBequi)[1][[1]]
-    #slope <- coef(PBequi)[2][[1]]
-    
-    #PBequi_summary<-  summary(PBequi)
-    
-    # Compute predicted values along the RMA line
-    # data2$y_PBequi <- intercept + slope * data2[[m]]
-    #  
-    # Metrics relative to RMA
+   
     metrics_df <- data2 %>%
       # group_by(method) %>%
       summarise(
         # RMSD: deviation between observed and raw predictor (no regression correction)
         rmse = sqrt(mean((trueCor_scaled - .data[[m]])^2, na.rm = TRUE)),
-        # RMSE: residual error after regression correction (with RMA-predicted values)
-        #rmse2 = sqrt(mean((trueCor_scaled - y_PBequi)^2, na.rm = TRUE)),
-        #rmse_rma = sqrt(mean((trueCor_scaled - y_rma)^2, na.rm = TRUE)),
-        #mae_rma  = mean(abs(trueCor_scaled - y_rma), na.rm = TRUE),
-        #r_squared = rma_PBequi$rsquare,
-        # slope=slope,
-        #intercept=intercept,
-        #mean_intercept_dev_rma = mean(trueCor_scaled - y_rma, na.rm = TRUE),
         xpos = 0,
         ypos = 0.95,
         .groups = "drop"
       )
     
-    ## Format significance stars
-    #slope_sig <- ifelse(slope_pValue < 0.001, "***",
-    #                    ifelse(slope_pValue < 0.01, "**",
-    #                           ifelse(slope_pValue < 0.05, "*", "")))
-    #intercept_sig <- ifelse(intercept_pValue < 0.001, "***",
-    #                        ifelse(intercept_pValue < 0.01, "**",
-    #                               ifelse(intercept_pValue < 0.05, "*", "")))
-    #rsquared_sig <- ifelse(PBequi_summary$pval < 0.001, "***",
-    #                       ifelse(PBequi_summary$pval < 0.01, "**",
-    #                              ifelse(PBequi_summary$pval < 0.05, "*", "")))
-    
+  
     label_text <- paste0(
       # "RMSE2 = ", round(metrics_df$rmse2, 2),
       #   "\nR² = ", round(metrics_df$r_squared_rma, 2),rsquared_sig,
@@ -168,14 +131,7 @@ for (m in metric_names) {
       theme_minimal(base_size = 24)+theme(legend.position="none")
     
     assign(paste0("plot_",method_plot), p)
-    
-    # PBequi_summary$rmsd <- metrics_df$rmsd
-    #  PBequi_summary$rmse <- metrics_df$rmse_rma
-    #  PBequi_summary$intercept <- metrics_df$intercept_rma
-    #  PBequi_summary$metric <- m
-    #  PBequi_summary$method <- method_plot
-    #  all_results[[paste0(m, "_",method_plot)]]  <- PBequi_summary
-    
+  
     rm(data2, PBequi,intercept, slope,p,metrics_df)
     
   }
@@ -217,8 +173,8 @@ rm(p1,p2, method_plot,label_text,all_plots,m)
 
 
 
-# 4 - plot with prevalence and reduced major axis regression ####
-#---------------------------------------------------------------#
+# 4 - plot with prevalence ####
+#----------------------------#
 
 
 all_plots=list()

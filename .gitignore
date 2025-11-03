@@ -26,7 +26,8 @@ data/run10
 data/run11
 data/run12/maps
 data/run12/results
-
+data/run13/results
+data/run14/results
  
 # Do not ignore Markdown files
 !*.md

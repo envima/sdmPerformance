@@ -94,8 +94,10 @@ for (m in metric_names) {
     #summary(fit)
     
     
-    plot(fit, which="residual" )
-    plot(fit, which="qq")
+    a1 <- plot(fit, which="residual" )
+    a2 <- plot(fit, which="qq")
+    
+    
     
     intercept_rma <- coef(fit)[1][[1]]
     slope_rma <- coef(fit)[2][[1]]

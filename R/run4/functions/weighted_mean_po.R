@@ -23,7 +23,6 @@ weighted_extreme_mean <- function(TopQ, omissionRate, alpha = 2) {
   
   weighted_mean <- sum(values * weights) / sum(weights)
   
-  #if (omissionRate < 0.5) weighted_mean <- mean(c(omissionRate,weighted_mean))
   
   # Step 2: Compute dynamic penalty for low omissionRate
   # Low omissionRate -> strong penalty, high omissionRate -> negligible penalty
@@ -32,6 +31,9 @@ weighted_extreme_mean <- function(TopQ, omissionRate, alpha = 2) {
   # Step 3: Apply penalty
   weighted_mean <- weighted_mean * penalty_factor
   
+  
+  if (omissionRate < 0.1) weighted_mean <-omissionRate
+  if (TopQ > 0.1) weighted_mean <-TopQ
   
   return(weighted_mean)
 }

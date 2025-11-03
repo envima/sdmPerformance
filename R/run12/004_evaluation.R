@@ -70,7 +70,7 @@ vars_path=normalizePath("data/variables.tif")
 source(paste0("R/",nameRun,"/functions/performanceEstimation.R"))
 
 
-mclapply(2700:nrow(df), function(i){
+mclapply(1:nrow(df), function(i){
   
   print(i)
   # Skip evaluation if result already exists
