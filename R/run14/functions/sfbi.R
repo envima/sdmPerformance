@@ -26,13 +26,16 @@ sfbi <- function(prd1, prd0, ktry=10) {
   prd <- seq(min(p), max(p), length=n0)
   oc <- c(rep(1, n1), rep(0, n0))
   
-  prd_cr <- tryCatch({
-    md_cr = mgcv::gam(oc ~ s(p,bs="cr",k=min(ktry,length(unique(p)))), family=binomial)
-    prd_cr = predict(md_cr,newdata=data.frame(p=prd),type='response')
-  }, error = function(e) {
-    # Handle mgcvError specifically
-    return(NA)
-  })
+  
+  #prd_cr <- tryCatch({
+  #  
+  #  md_cr = mgcv::gam(oc ~ s(p,bs="cr",k=min(ktry,length(unique(p)))), family=binomial)
+  #  prd_cr = predict(md_cr,newdata=data.frame(p=prd),type='response')
+  #  
+  #}, error = function(e) {
+  #  return(NA)
+  #})
+  prd_cr<-NA
   
   md_tp = mgcv::gam(oc ~ s(p,bs="tp",k=min(ktry,length(unique(p)))), family=binomial)
   prd_tp = predict(md_tp,newdata=data.frame(p=prd),type='response')

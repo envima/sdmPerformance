@@ -34,7 +34,7 @@ if (Sys.info()[[4]]=="PC19674") {
   setwd("M:/user/bald/SDM/sdmPerformance/")
   nCores=1
 } else if (Sys.info()[[4]]=="pc19543") {
-  nCores=40
+  nCores=50
 }
 
 # ================================================================

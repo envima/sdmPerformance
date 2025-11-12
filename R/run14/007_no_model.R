@@ -161,7 +161,7 @@ for (m in metric_names) {
     
     
     p<-  ggplot(data2, aes(x = .data[[m]], y = trueCor_scaled)) +
-      geom_point(size = 0.3, colour="cornflowerblue") +
+      geom_point(size = 0.1, colour="cornflowerblue") +
       geom_abline(slope = 1, intercept = 0, color = "deeppink3", linetype = "dashed", linewidth=1) + # Winkelhalbierende
       # geom_abline(slope = slope, intercept = intercept, linewidth=1) + # RMA line
       
@@ -268,7 +268,7 @@ for (m in metric_names) {
       
       
       p<-  ggplot(data2, aes(x = .data[[m]], y = trueCor_scaled)) +
-        geom_point(size = 0.3, colour="cornflowerblue") +
+        geom_point(size = 0.1, colour="cornflowerblue") +
         geom_abline(slope = 1, intercept = 0, color = "deeppink3", linetype = "dashed", linewidth=1) + # Winkelhalbierende
         #geom_abline(slope = slope, intercept = intercept, linewidth=1) + # RMA line
         facet_wrap(vars(method,class)) +
@@ -349,7 +349,7 @@ for (m in metric_names) {
       
       
       p<-  ggplot(data2, aes(x = .data[[m]], y = trueCor_scaled)) +
-        geom_point(size = 0.3, colour="cornflowerblue") +
+        geom_point(size = 0.1, colour="cornflowerblue") +
         geom_abline(slope = 1, intercept = 0, color = "deeppink3", linetype = "dashed", linewidth=1) + # Winkelhalbierende
         #  geom_abline(slope = slope, intercept = intercept, linewidth=1) + # RMA line
         facet_wrap(vars(method,points)) +
@@ -442,7 +442,7 @@ for (m in metric_names) {
       
       
       p<-  ggplot(data2, aes(x = .data[[m]], y = trueCor_scaled)) +
-        geom_point(size = 0.3, colour="cornflowerblue") +
+        geom_point(size = 0.1, colour="cornflowerblue") +
         geom_abline(slope = 1, intercept = 0, color = "deeppink3", linetype = "dashed", linewidth=1) + # Winkelhalbierende
         #  geom_abline(slope = slope, intercept = intercept, linewidth=1) + # RMA line
         facet_wrap(vars(method,model)) +
@@ -531,7 +531,7 @@ for (m in metric_names) {
       
       
       p<-  ggplot(data2, aes(x = .data[[m]], y = trueCor_scaled)) +
-        geom_point(size = 0.3, colour="cornflowerblue") +
+        geom_point(size = 0.1, colour="cornflowerblue") +
         geom_abline(slope = 1, intercept = 0, color = "deeppink3", linetype = "dashed", linewidth=1) + # Winkelhalbierende
         #  geom_abline(slope = slope, intercept = intercept, linewidth=1) + # RMA line
         facet_wrap(vars(method,size)) +
@@ -619,7 +619,7 @@ for (m in metric_names) {
         
         
         p<-  ggplot(data2, aes(x = .data[[m]], y = trueCor_scaled)) +
-          geom_point(size = 0.3, colour="cornflowerblue") +
+          geom_point(size = 0.1, colour="cornflowerblue") +
           geom_abline(slope = 1, intercept = 0, color = "deeppink3", linetype = "dashed", linewidth=1) + # Winkelhalbierende
           #  geom_abline(slope = slope, intercept = intercept, linewidth=1) + # RMA line
           facet_wrap(vars(method,size,model)) +
@@ -739,6 +739,9 @@ for (m in metric_names) {
 #---------------------------------------------#
 
 all_results=list()
+
+metric_names <- c( "AUC_scaled", "COR_scaled",  "TSS_scaled" )
+                    #"SEDI_scaled", "SBI_m_scaled","Spec_scaled", "Sens_scaled","Kappa_scaled", "PCC_scaled","PRG_scaled", 
 
 
 for (m in metric_names) {
@@ -1112,34 +1115,189 @@ for (m in metric_names) {
     "Pearson correlation between probability of occurrence and artificial distribution map",
     gp = gpar(fontsize = 24),
     rot = 90))
-  ggsave(p1, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_BRT_byMethodSizeModel.png"), dpi = 300, width = 16, height = 25)
+  ggsave(p1, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_BRT_size",40,".png"), dpi = 300, width = 16, height = 25)
   
   p2=egg::ggarrange(plots=plots[16:30],ncol=3,nrow=5, left=textGrob(
     "Pearson correlation between probability of occurrence and artificial distribution map",
     gp = gpar(fontsize = 24),
     rot = 90))
-  ggsave(p2, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_GAM_byMethodSizeModel.png"), dpi = 300, width = 16, height = 25)
+  ggsave(p2, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_GAM_size",40,".png"), dpi = 300, width = 16, height = 25)
   
   p3=egg::ggarrange(plots=plots[31:45],ncol=3,nrow=5, left=textGrob(
     "Pearson correlation between probability of occurrence and artificial distribution map",
     gp = gpar(fontsize = 24),
     rot = 90))
-  ggsave(p3, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_Lasso_byMethodSizeModel.png"), dpi = 300, width = 16, height = 25)
+  ggsave(p3, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_Lasso_size",40,".png"), dpi = 300, width = 16, height = 25)
   
   p4=egg::ggarrange(plots=plots[46:60],ncol=3,nrow=5, left=textGrob(
     "Pearson correlation between probability of occurrence and artificial distribution map",
     gp = gpar(fontsize = 24),
     rot = 90))
-  ggsave(p4, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_Maxent_byMethodSizeModel.png"), dpi = 300, width = 16, height = 25)
+  ggsave(p4, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_Maxent_size",40,".png"), dpi = 300, width = 16, height = 25)
   
   
   p5=egg::ggarrange(plots=plots[61:75],ncol=3,nrow=5, left=textGrob(
     "Pearson correlation between probability of occurrence and artificial distribution map",
     gp = gpar(fontsize = 24),
     rot = 90))
-  ggsave(p5, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_RF_byMethodSizeModel.png"), dpi = 300, width = 16, height = 25)
+  ggsave(p5, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_RF_size",40,".png"), dpi = 300, width = 16, height = 25)
+  
+  p6=egg::ggarrange(plots=plots[76:90],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p6, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_BRT_size",80,".png"), dpi = 300, width = 16, height = 25)
+  
+  p7=egg::ggarrange(plots=plots[91:105],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p7, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_GAM_size",80,".png"), dpi = 300, width = 16, height = 25)
+  
+  p8=egg::ggarrange(plots=plots[106:120],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p8, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_Lasso_size",80,".png"), dpi = 300, width = 16, height = 25)
+  
+  p9=egg::ggarrange(plots=plots[121:135],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p9, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_Maxent_size",80,".png"), dpi = 300, width = 16, height = 25)
+  
+  
+  p10=egg::ggarrange(plots=plots[136:150],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p10, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_RF_size",80,".png"), dpi = 300, width = 16, height = 25)
+  
+  p11=egg::ggarrange(plots=plots[151:165],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p11, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_BRT_size",120,".png"), dpi = 300, width = 16, height = 25)
+  
+  p12=egg::ggarrange(plots=plots[166:180],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p12, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_GAM_size",120,".png"), dpi = 300, width = 16, height = 25)
+  
+  p13=egg::ggarrange(plots=plots[181:195],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p13, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_Lasso_size",120,".png"), dpi = 300, width = 16, height = 25)
+  
+  p14=egg::ggarrange(plots=plots[196:210],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p14, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_Maxent_size",120,".png"), dpi = 300, width = 16, height = 25)
+  
+  
+  p15=egg::ggarrange(plots=plots[211:225],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p15, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_RF_size",120,".png"), dpi = 300, width = 16, height = 25)
+  
+  p16=egg::ggarrange(plots=plots[226:240],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p16, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_BRT_size",160,".png"), dpi = 300, width = 16, height = 25)
+  
+  p17=egg::ggarrange(plots=plots[241:255],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p17, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_GAM_size",160,".png"), dpi = 300, width = 16, height = 25)
+  
+  p18=egg::ggarrange(plots=plots[256:270],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p18, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_Lasso_size",160,".png"), dpi = 300, width = 16, height = 25)
+  
+  p19=egg::ggarrange(plots=plots[271:285],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p19, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_Maxent_size",160,".png"), dpi = 300, width = 16, height = 25)
+  
+  
+  p20=egg::ggarrange(plots=plots[286:300],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p20, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_RF_size",160,".png"), dpi = 300, width = 16, height = 25)
+  
+  p21=egg::ggarrange(plots=plots[301:315],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p21, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_BRT_size",200,".png"), dpi = 300, width = 16, height = 25)
+  
+  p22=egg::ggarrange(plots=plots[316:330],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p22, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_GAM_size",200,".png"), dpi = 300, width = 16, height = 25)
+  
+  p23=egg::ggarrange(plots=plots[331:345],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p23, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_Lasso_size",200,".png"), dpi = 300, width = 16, height = 25)
+  
+  p24=egg::ggarrange(plots=plots[346:360],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p24, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_Maxent_size",200,".png"), dpi = 300, width = 16, height = 25)
+  
+  
+  p25=egg::ggarrange(plots=plots[361:375],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p25, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_RF_size",200,".png"), dpi = 300, width = 16, height = 25)
+  
+  p26=egg::ggarrange(plots=plots[376:390],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p26, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_BRT_size",400,".png"), dpi = 300, width = 16, height = 25)
+  
+  p27=egg::ggarrange(plots=plots[391:405],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p27, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_GAM_size",400,".png"), dpi = 300, width = 16, height = 25)
+  
+  p28=egg::ggarrange(plots=plots[406:420],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p28, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_Lasso_size",400,".png"), dpi = 300, width = 16, height = 25)
+  
+  p29=egg::ggarrange(plots=plots[421:435],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p29, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_Maxent_size",400,".png"), dpi = 300, width = 16, height = 25)
+  
+  
+  p30=egg::ggarrange(plots=plots[436:450],ncol=3,nrow=5, left=textGrob(
+    "Pearson correlation between probability of occurrence and artificial distribution map",
+    gp = gpar(fontsize = 24),
+    rot = 90))
+  ggsave(p30, filename = paste0("images/",nameRun,"/resultPlotsSizeModelPoints/", m, "_RF_size",400,".png"), dpi = 300, width = 16, height = 25)
   
   
   
-  rm(plots,p1)
+  rm(plots,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23,p24,p25,p26,p27,p28,p29,p30)
 }

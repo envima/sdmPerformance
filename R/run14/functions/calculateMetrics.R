@@ -23,5 +23,5 @@ calculateMetrics <- function(prediction, presence, absence_or_bg_sf, type = c("P
   
   # Compute all metrics using indexCalculation
   metrics <- indexCalculation(inputDF, prediction = prediction)
-  return(metrics)
+ return(metrics)
 }

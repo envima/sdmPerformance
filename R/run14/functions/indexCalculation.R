@@ -36,13 +36,8 @@ indexCalculation <- function(inputDF, prediction) {
   randomProbabilityValues <- terra::spatSample(prediction, size = 5000, na.rm = TRUE, as.df = TRUE)[[1]]
   
   # Compute Boyce index for presence vs random predictions
- # boyce <- tryCatch(sfbi(prd1 = inputDF[inputDF$observed == 1,]$predicted,
-#                         prd0 = randomProbabilityValues, ktry = 12)
-#                    , error = function(e) NA_real_ 
-#  )
-  
   boyce <- sfbi(prd1 = inputDF[inputDF$observed == 1,]$predicted,
-                         prd0 = randomProbabilityValues, ktry = 10)
+                prd0 = randomProbabilityValues, ktry = 10)
   
   SBI_tp <- boyce[1]; SBI_cr <- boyce[2]; SBI_bs <- boyce[3]
   SBI_ps <- boyce[4]; SBI_ad <- boyce[5]; SBI_m <- boyce[6]

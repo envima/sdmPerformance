@@ -105,7 +105,7 @@ performanceEstimation <- function(
   if (isTRUE(background)) {
     message(paste("Calculating metrics on presence-background with", replicates, "replicates."))
     indexPBG <- do.call("rbind", lapply(1:replicates, function(i) {
-     # print(i)
+      #print(i)
       bg <- generateBackgroundPoints(environmentalVariables, noPointsTesting)
       calculateMetrics(prediction, presence, bg, type = "PBG")
     }))
