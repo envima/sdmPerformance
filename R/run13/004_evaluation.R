@@ -25,6 +25,9 @@ library(terra)            # raster handling
 library(climateStability) # rescaling to [0,1]
 library(RandomFieldsUtils)# dependency RandomField package
 library(raster)           # dependency RandomField package
+#devtools::install_github("envima/poEvaluationMetrics")
+library(poEvaluationMetrics)
+
 
 # ================================================================
 # 2. Configure RandomFields settings

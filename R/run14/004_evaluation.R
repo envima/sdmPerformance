@@ -25,6 +25,8 @@ library(terra)            # raster handling
 library(climateStability) # rescaling to [0,1]
 library(RandomFieldsUtils)# dependency RandomField package
 library(raster)           # dependency RandomField package
+#devtools::install_github("envima/poEvaluationMetrics")
+library(poEvaluationMetrics)
 
 # ================================================================
 # 3. Set working directory and number of cores
@@ -58,7 +60,6 @@ nameRun <- paste0("run", 14)
 # ================================================================
 
 vars_path=normalizePath("data/variables.tif")
-source(paste0("R/",nameRun,"/functions/performanceEstimation.R"))
 
 
 mclapply(1:nrow(df), function(i){
